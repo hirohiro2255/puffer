@@ -1,6 +1,7 @@
 import json
 import copy
 from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL
+from utils import get_piece_character
 
 
 class Chess:
@@ -127,31 +128,7 @@ class Chess:
     def print_board(self):
         for i in range(2, 10):
             for j in range(2, 10):
-                piece = '.'
-                if self.state[i][j] == WHITE | PAWN:
-                    piece = '♙'
-                elif self.state[i][j] == WHITE | KNIGHT:
-                    piece = '♘'
-                elif self.state[i][j] == WHITE | BISHOP:
-                    piece = '♗'
-                elif self.state[i][j] == WHITE | ROOK:
-                    piece = '♖'
-                elif self.state[i][j] == WHITE | QUEEN:
-                    piece = '♕'
-                elif self.state[i][j] == WHITE | KING:
-                    piece = '♔'
-                elif self.state[i][j] == BLACK | PAWN:
-                    piece = '♟︎'
-                elif self.state[i][j] == BLACK | KNIGHT:
-                    piece = '♞'
-                elif self.state[i][j] == BLACK | BISHOP:
-                    piece = '♝'
-                elif self.state[i][j] == BLACK | ROOK:
-                    piece = '♜'
-                elif self.state[i][j] == BLACK | QUEEN:
-                    piece = '♛'
-                elif self.state[i][j] == BLACK | KING:
-                    piece = '♚'
+                piece = get_piece_character(self.state[i][j])
 
                 print(f'{piece} ', end='')
             print()
