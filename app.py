@@ -126,12 +126,16 @@ class Chess:
                 break
 
     def print_board(self):
+        print("   a b c d e f g h")
         for i in range(2, 10):
+            print(f'{10-i}  ', end='')
             for j in range(2, 10):
                 piece = "{} ".format(get_piece_character(self.state[i][j]))
 
                 print(f'{piece}', end='')
-            print()
+            print(f' {10-i}')
+
+        print("   a b c d e f g h")
 
 
 def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
