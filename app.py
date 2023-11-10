@@ -1,7 +1,7 @@
 import json
 import copy
-from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL
-from utils import get_piece_character
+from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3
+from utils import get_piece_character, get_piece_from_fen_string_char
 
 
 class Chess:
@@ -128,10 +128,52 @@ class Chess:
     def print_board(self):
         for i in range(2, 10):
             for j in range(2, 10):
-                piece = get_piece_character(self.state[i][j])
+                piece = "{} ".format(get_piece_character(self.state[i][j]))
 
-                print(f'{piece} ', end='')
+                print(f'{piece}', end='')
             print()
+
+
+def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
+    b = [[SENTINEL] * 12 for _ in range(12)]
+    fen_config = fen.split(' ')
+    fen_rows = fen_config[0].split('/')
+    if len(fen_rows) != 8:
+        raise ValueError(
+            "Could not parse fen string: Invalid number of rows provided, 8 expected")
+
+    row = 2
+    col = 2
+    for fen_row in fen_rows:
+        for square in fen_row:
+            if square.isdigit():
+                square_skip_count = int(square)
+                if square_skip_count + col > 10:
+                    raise IndexError(
+                        'Could not parse fen string: Index out of bounds')
+
+                while square_skip_count > 0:
+                    b[row][col] = EMPTY
+                    col += 1
+                    square_skip_count -= 1
+            else:
+                piece = get_piece_from_fen_string_char(square)
+                if piece is None:
+                    raise ValueError(
+                        'Could not parse fen string: Invalid character found')
+                else:
+                    b[row][col] = piece
+                col += 1
+        if col != 10:
+            raise ValueError(
+                'Could not parse fen string: Complete row was not specified')
+        row += 1
+        col = 2
+
+    board = Chess('settings.json')
+    board.state = copy.deepcopy(b)
+    board.to_move = WHITE
+    return board
 
 
 def new_board() -> Chess:
@@ -176,4 +218,6 @@ if __name__ == '__main__':
 # chess.play()
     # print(chess.state)
     b = new_board()
-    b.print_board()
+    board = board_from_fen(POSITION_3)
+    board.print_board()
+    print(board.state)
