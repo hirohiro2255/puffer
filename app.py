@@ -1,6 +1,6 @@
 import json
 import copy
-from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3
+from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3, BOARD_START, BOARD_END
 from utils import get_piece_character, get_piece_from_fen_string_char
 
 
@@ -127,9 +127,9 @@ class Chess:
 
     def print_board(self):
         print("   a b c d e f g h")
-        for i in range(2, 10):
+        for i in range(BOARD_START, BOARD_END):
             print(f'{10-i}  ', end='')
-            for j in range(2, 10):
+            for j in range(BOARD_START, BOARD_END):
                 piece = "{} ".format(get_piece_character(self.state[i][j]))
 
                 print(f'{piece}', end='')
@@ -154,13 +154,13 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
         raise ValueError(
             "Could not parse fen string: Invalid number of rows provided, 8 expected")
 
-    row = 2
-    col = 2
+    row = BOARD_START
+    col = BOARD_START
     for fen_row in fen_rows:
         for square in fen_row:
             if square.isdigit():
                 square_skip_count = int(square)
-                if square_skip_count + col > 10:
+                if square_skip_count + col > BOARD_END:
                     raise IndexError(
                         'Could not parse fen string: Index out of bounds')
 
@@ -176,11 +176,11 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
                 else:
                     b[row][col] = piece
                 col += 1
-        if col != 10:
+        if col != BOARD_END:
             raise ValueError(
                 'Could not parse fen string: Complete row was not specified')
         row += 1
-        col = 2
+        col = BOARD_START
 
     board = Chess('settings.json')
     board.state = b
