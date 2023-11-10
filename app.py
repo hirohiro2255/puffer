@@ -137,6 +137,14 @@ class Chess:
 def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
     b = [[SENTINEL] * 12 for _ in range(12)]
     fen_config = fen.split(' ')
+    if len(fen_config) != 6:
+        raise ValueError('Could not parse fen string: Invalid fen string')
+
+    to_move = WHITE if fen_config[1] == 'w' else BLACK
+    castling_privileges = fen_config[2]
+    en_passant = fen_config[3]
+    halfmove_clock = fen_config[4]
+    fullmove_clock = fen_config[5]
     fen_rows = fen_config[0].split('/')
     if len(fen_rows) != 8:
         raise ValueError(
@@ -171,8 +179,8 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
         col = 2
 
     board = Chess('settings.json')
-    board.state = copy.deepcopy(b)
-    board.to_move = WHITE
+    board.state = b
+    board.to_move = to_move
     return board
 
 
@@ -218,6 +226,6 @@ if __name__ == '__main__':
 # chess.play()
     # print(chess.state)
     b = new_board()
-    board = board_from_fen(POSITION_3)
+    board = board_from_fen()
     board.print_board()
     print(board.state)
