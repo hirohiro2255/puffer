@@ -1,11 +1,53 @@
 import unittest
 
 from app import Chess, board_from_fen
-from movegen import knight_moves, pawn_moves, king_moves
-from defs import WHITE, KNIGHT, PAWN, BLACK, KING
+from movegen import knight_moves, pawn_moves, king_moves, rook_moves
+from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK
 
 
 class TestMoveGen(unittest.TestCase):
+
+    # rook tests
+    def test_rook_center_of_empty_board(self):
+        b = board_from_fen("8/8/8/8/3R4/8/8/8 w - - 0 1")
+        ret = []
+        row = 6
+        col = 5
+        rook_moves(row, col, WHITE | ROOK, b, ret)
+        self.assertEqual(len(ret), 14)
+
+    def test_rook_center_of_board(self):
+        b = board_from_fen("8/8/8/3q4/2kRp3/3b4/8/8 w - - 0 1")
+        ret = []
+        row = 6
+        col = 5
+        rook_moves(row, col, WHITE | ROOK, b, ret)
+        self.assertEqual(len(ret), 4)
+
+    def test_rook_center_of_board_with_white_pieces(self):
+        b = board_from_fen("7p/3N4/8/4n3/2kR4/3b4/8/8 w - - 0 1")
+        ret = []
+        row = 6
+        col = 5
+        rook_moves(row, col, WHITE | ROOK, b, ret)
+        self.assertEqual(len(ret), 8)
+
+    def test_rook_corner(self):
+        b = board_from_fen("7p/3N4/8/4n3/2kR4/3b4/8/8 w - - 0 1")
+        ret = []
+        row = 9
+        col = 9
+        rook_moves(row, col, WHITE | ROOK, b, ret)
+        self.assertEqual(len(ret), 14)
+
+    def test_black_rook_center_of_board_with_white_pieces(self):
+        b = board_from_fen("7p/3N4/8/4n3/2kR4/3b4/8/8 w - - 0 1")
+        ret = []
+        row = 6
+        col = 5
+        rook_moves(row,col,BLACK|ROOK,b,ret)
+        self.assertEqual(len(ret), 7)
+
 
     # knight tests
     def test_knight_moves_empty_board(self):

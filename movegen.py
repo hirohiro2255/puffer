@@ -3,6 +3,40 @@ from defs import is_empty, COLOR_MASK, is_white, is_outside_board, is_black
 from app import Chess
 
 
+def rook_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+    row_start = row+1
+    while is_empty(board.state[row_start][col]):
+        moves.append((row_start, col))
+        row_start += 1
+
+    if not is_outside_board(board.state[row_start][col]) and (piece & COLOR_MASK) != board.state[row_start][col] & COLOR_MASK:
+        moves.append((row_start+1, col))
+
+    row_start = row-1
+    while is_empty(board.state[row_start][col]):
+        moves.append((row_start, col))
+        row_start -= 1
+
+    if not is_outside_board(board.state[row_start][col]) and (piece & COLOR_MASK) != (board.state[row_start][col] & COLOR_MASK):
+        moves.append((row_start-1, col))
+
+    col_start = col+1
+    while is_empty(board.state[row][col_start]):
+        moves.append((row, col_start))
+        col_start += 1
+
+    if not is_outside_board(board.state[row][col_start]) and (piece & COLOR_MASK) != (board.state[row][col_start] & COLOR_MASK):
+        moves.append((row, col_start+1))
+
+    col_start = col-1
+    while is_empty(board.state[row][col_start]):
+        moves.append((row, col_start))
+        col_start -= 1
+
+    if not is_outside_board(board.state[row][col_start]) and (piece & COLOR_MASK) != (board.state[row][col_start] & COLOR_MASK):
+        moves.append((row, col_start-1))
+
+
 def king_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
     for i in range(-1, 2):
         for j in range(-1, 2):
