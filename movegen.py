@@ -20,11 +20,26 @@ def pawn_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[i
             moves.append((row-1, col))
 
         # check a double push
-        if row == 8 and is_empty(board.state[row-2][col]):
+        if row == 8 and is_empty(board.state[row-1][col]) and is_empty(board.state[row-2][col]):
             moves.append((row-2, col))
 
     else:
-        pass
+        # check capture
+        left_cap = board.state[row+1][col+1]
+        right_cap = board.state[row+1][col-1]
+        if not is_outside_board(left_cap) and is_white(left_cap):
+            moves.append((row+1, col+1))
+
+        if not is_outside_board(right_cap) and is_white(right_cap):
+            moves.append((row+1, col-1))
+
+        # check a normal push
+        if is_empty(board.state[row+1][col]):
+            moves.append((row+1, col))
+
+        # check a double push
+        if row == 3 and is_empty(board.state[row+1][col]) and is_empty(board.state[row+2][col]):
+            moves.append((row+2, col))
 
 
 def knight_moves(row, col, piece, board, moves):
