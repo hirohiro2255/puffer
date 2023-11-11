@@ -4,6 +4,7 @@ from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, 
 
 
 class TestChessClass(unittest.TestCase):
+
     def test_empty_board(self):
         b = board_from_fen("8/8/8/8/8/8/8/8 w KQkq - 0 1")
         for i in range(2, 10):
