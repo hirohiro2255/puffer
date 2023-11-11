@@ -1,11 +1,12 @@
 import unittest
 
 from app import Chess, board_from_fen
-from movegen import knight_moves, pawn_moves
-from defs import WHITE, KNIGHT, PAWN, BLACK
+from movegen import knight_moves, pawn_moves, king_moves
+from defs import WHITE, KNIGHT, PAWN, BLACK, KING
 
 
 class TestMoveGen(unittest.TestCase):
+
     # knight tests
     def test_knight_moves_empty_board(self):
         b = board_from_fen("8/8/8/8/3N4/8/8/8 w - - 0 1")
@@ -128,6 +129,39 @@ class TestMoveGen(unittest.TestCase):
         col = 5
         pawn_moves(row, col, BLACK | PAWN, b, ret)
         self.assertEqual(len(ret), 1)
+
+    # piece test -- king
+    def test_king_empty_board_center(self):
+        b = board_from_fen("8/8/8/8/3K4/8/8/8 w - - 0 1")
+        ret = []
+        row = 5
+        col = 6
+        king_moves(row, col, WHITE | KING, b, ret)
+        self.assertEqual(len(ret), 8)
+
+    def test_king_start_pos(self):
+        b = board_from_fen("8/8/8/8/8/8/8/4K3 w - - 0 1")
+        ret = []
+        row = 9
+        col = 6
+        king_moves(row, col, WHITE | KING, b, ret)
+        self.assertEqual(len(ret), 5)
+
+    def test_king_start_pos_other_pieces(self):
+        b = board_from_fen("8/8/8/8/8/8/3Pn3/3QKB2 w - - 0 1")
+        ret = []
+        row = 9
+        col = 6
+        king_moves(row, col, WHITE | KING, b, ret)
+        self.assertEqual(len(ret), 2)
+
+    def test_king_black_other_pieces(self):
+        b = board_from_fen("8/8/8/8/8/3Pn3/3QkB2/3R1q2 w - - 0 1")
+        ret = []
+        row = 8
+        col = 6
+        king_moves(row, col, BLACK | KING, b, ret)
+        self.assertEqual(len(ret), 6)
 
 
 if __name__ == '__main__':
