@@ -127,7 +127,7 @@ class Chess:
                 break
 
     def print_board(self):
-        print("   a b c d e f g h")
+        print("\n   a b c d e f g h")
         for i in range(BOARD_START, BOARD_END):
             print(f'{10-i}  ', end='')
             for j in range(BOARD_START, BOARD_END):

@@ -1,3 +1,14 @@
+"""
+    Example Piece: 0b11000101
+    1st bit: Color 1 = White, 0 = Black
+    2nd bit: Whether this piece has moved yet, 0=has not moved, 1=has moved
+    3-5 bit: Unused
+    6-8 bit: Piece identifier
+"""
+
+MOVED_MASK = 0b01000000
+
+
 COLOR_MASK = 0b10000000
 WHITE = 0b10000000
 BLACK = 0b00000000
@@ -15,11 +26,11 @@ SENTINEL = 0b11111111
 
 
 def is_white(square: int) -> bool:
-    return square & COLOR_MASK == WHITE
+    return not is_empty(square) and square & COLOR_MASK == WHITE
 
 
 def is_black(square: int) -> bool:
-    return not is_white(square)
+    return not is_empty(square) and square & COLOR_MASK == BLACK
 
 
 def is_pawn(square: int) -> bool:
@@ -60,3 +71,7 @@ POSITION_3 = '8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1'
 
 BOARD_START = 2
 BOARD_END = 10
+
+
+def has_moved(square: int) -> bool:
+    return square & MOVED_MASK != 0

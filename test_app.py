@@ -1,6 +1,6 @@
 import unittest
 from app import Chess, board_from_fen
-from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, is_pawn, is_knight, is_bishop, is_rook, is_queen, is_king, is_empty, is_outside_board, EMPTY, SENTINEL
+from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, is_pawn, is_knight, is_bishop, is_rook, is_queen, is_king, is_empty, is_outside_board, EMPTY, SENTINEL, has_moved, MOVED_MASK
 
 
 class TestChessClass(unittest.TestCase):
@@ -120,6 +120,9 @@ class TestChessClass(unittest.TestCase):
         self.assertTrue(is_outside_board(SENTINEL))
         self.assertTrue(not is_outside_board(EMPTY))
         self.assertTrue(not is_outside_board(WHITE | KING))
+
+        self.assertTrue(has_moved(WHITE | PAWN | MOVED_MASK))
+        self.assertTrue(not has_moved(WHITE | PAWN))
 
 
 if __name__ == '__main__':
