@@ -1,58 +1,76 @@
 import unittest
 
 from app import Chess, board_from_fen
-from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves, get_moves, is_check, can_castle
+from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves, get_moves, is_check, can_castle, pawn_moves_en_passant, generate_moves
 from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN, BOARD_START, BOARD_END, is_white, CastlingType
 
 
 class TestMoveGen(unittest.TestCase):
 
+    def test_perft_position_1(self):
+        move_states = [0] * 5
+        b = board_from_fen(
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        generate_moves(b, 0, 3, move_states)
+        self.assertEqual(move_states[0], 20)
+        self.assertEqual(move_states[1], 400)
+        self.assertEqual(move_states[2], 8902)
+        # self.assertEqual(move_states[3], 197281)
+
     def test_black_en_passant_piece_in_way(self):
         b = board_from_fen("8/8/8/8/pP6/1q6/8/8 w - b4 0 1")
         ret = []
         pawn_moves(6, 2, BLACK | PAWN, b, ret)
+        pawn_moves_en_passant(6, 2, BLACK | PAWN, b, ret)
         self.assertEqual(len(ret), 1)
 
     def test_black_pawn_en_passant_wrong_row(self):
         b = board_from_fen("8/8/8/pP6/8/8/8/8 w - b5 0 1")
         ret = []
         pawn_moves(5, 2, BLACK | PAWN, b, ret)
+        pawn_moves_en_passant(5, 2, BLACK | PAWN, b, ret)
         self.assertEqual(len(ret), 1)
 
     def test_black_pawn_en_passant_right(self):
         b = board_from_fen("8/8/8/8/pP6/8/8/8 w - b4 0 1")
         ret = []
         pawn_moves(6, 2, BLACK | PAWN, b, ret)
+        pawn_moves_en_passant(6, 2, BLACK | PAWN, b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_black_en_passant_left(self):
         b = board_from_fen("8/8/8/8/1Pp5/8/8/8 w - b4 0 1")
         ret = []
         pawn_moves(6, 4, BLACK | PAWN, b, ret)
+        pawn_moves_en_passant(6, 4, BLACK | PAWN, b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_white_en_passant_piece_in_way(self):
         b = board_from_fen("8/8/3Q4/3pP3/8/8/8/8 w - d5 0 1")
         ret = []
         pawn_moves(5, 6, WHITE | PAWN, b, ret)
+        pawn_moves_en_passant(5, 6, WHITE | PAWN, b, ret)
         self.assertEqual(len(ret), 1)
 
     def test_white_pawn_en_passant_wrong_row(self):
         b = board_from_fen("8/8/8/8/4Pp2/8/8/8 w - f4 0 1")
         ret = []
         pawn_moves(6, 6, WHITE | PAWN, b, ret)
+        pawn_moves_en_passant(6, 6, WHITE | PAWN, b, ret)
         self.assertEqual(len(ret), 1)
 
     def test_white_pawn_en_passant_right(self):
         b = board_from_fen("8/8/8/4Pp2/8/8/8/8 w - f5 0 1")
         ret = []
         pawn_moves(5, 6, WHITE | PAWN, b, ret)
+        pawn_moves_en_passant(5, 6, WHITE | PAWN, b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_white_pawn_en_passant_left(self):
         b = board_from_fen("8/8/8/3pP3/8/8/8/8 w - d5 0 1")
         ret = []
         pawn_moves(5, 6, WHITE | PAWN, b, ret)
+        pawn_moves_en_passant(5, 6, WHITE | PAWN, b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_black_queen_side_castle(self):

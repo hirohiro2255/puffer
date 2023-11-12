@@ -123,3 +123,12 @@ def algebraic_pairs_to_board_position(pair: str) -> Tuple[int, int] | None:
         return None
 
     return (row, col+BOARD_START)
+
+
+def get_color(square: int) -> int | None:
+    if is_empty(square) or is_outside_board(square):
+        return None
+
+    if square & COLOR_MASK == WHITE:
+        return WHITE
+    return BLACK
