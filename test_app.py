@@ -8,14 +8,14 @@ class TestChessClass(unittest.TestCase):
     def test_correct_en_passant_privileges(self):
         b = board_from_fen(
             "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e4 0 1")
-        self.assertEqual(b.state[BOARD_START+4]
-                         [BOARD_START+4], WHITE | PAWN | EN_PASSANT)
+        self.assertEqual(b.pawn_double_move[0], BOARD_START+4)
+        self.assertEqual(b.pawn_double_move[1], BOARD_START+4)
 
     def test_correct_en_passant_privileges_black(self):
         b = board_from_fen(
             "rnbqkbnr/ppppppp1/8/7p/8/8/PPPPPPPP/RNBQKBNR w KQkq h5 0 1")
-        self.assertEqual(b.state[BOARD_START+3]
-                         [BOARD_START+7], BLACK | PAWN | EN_PASSANT)
+        self.assertEqual(b.pawn_double_move[0], BOARD_START+3)
+        self.assertEqual(b.pawn_double_move[1], BOARD_START+7)
 
     def test_algebraic_translation_correct(self):
         res = algebraic_pairs_to_board_position("a8")

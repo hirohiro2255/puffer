@@ -1,6 +1,6 @@
 import copy
 from typing import List, Tuple
-from defs import EMPTY, WHITE, is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING, BLACK, CastlingType, BOARD_END, BOARD_START, EN_PASSANT, get_color, is_pawn
+from defs import EMPTY, WHITE, is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING, BLACK, CastlingType, BOARD_END, BOARD_START, EN_PASSANT, get_color, is_pawn, is_king
 from app import Chess
 
 """
@@ -157,6 +157,18 @@ def is_check_cords(board: Chess, color: int, square_cords: Tuple[int, int]) -> b
 
             if square == (attacking_color | BISHOP) or square == (attacking_color | QUEEN):
                 return True
+
+    # Check from king
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            _row = square_cords[0] + i
+            _col = square_cords[1] + j
+            square = board.state[_row][_col]
+            if is_outside_board(square):
+                continue
+
+            if is_king(square) and (square & COLOR_MASK) == attacking_color:
+                return True
     return False
 
 
@@ -271,20 +283,26 @@ def pawn_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[i
 
 
 def pawn_moves_en_passant(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+    if board.pawn_double_move is None:
+        return
+
     if is_white(piece):
         if row == BOARD_START+3:
-            if board.state[row][col-1] == (BLACK | PAWN | EN_PASSANT) and is_empty(board.state[row-1][col-1]):
-                moves.append((row-1, col-1))
+            left_cap = (row-1, col-1)
+            right_cap = (row-1, col+1)
+            if left_cap == board.pawn_double_move:
+                moves.append(left_cap)
+            elif right_cap == board.pawn_double_move:
+                moves.append(right_cap)
 
-            if board.state[row][col+1] == (BLACK | PAWN | EN_PASSANT) and is_empty(board.state[row-1][col+1]):
-                moves.append((row-1, col+1))
     else:
         if row == BOARD_START+4:
-            if board.state[row][col-1] == (WHITE | PAWN | EN_PASSANT) and is_empty(board.state[row+1][col-1]):
-                moves.append((row+1, col-1))
-
-            if board.state[row][col+1] == (WHITE | PAWN | EN_PASSANT) and is_empty(board.state[row+1][col+1]):
-                moves.append((row+1, col+1))
+            left_cap = (row+1, col+1)
+            right_cap = (row+1, col-1)
+            if left_cap == board.pawn_double_move:
+                moves.append(left_cap)
+            elif right_cap == board.pawn_double_move:
+                moves.append(right_cap)
 
 
 KNIGHT_CORDS = [(1, 2),
@@ -328,15 +346,15 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                     else:
                         new_board.to_move = BLACK
 
-                    # this will take care of any captures, except for en passant captures
-                    new_board.state[_move[0]][_move[1]] = board.state[i][j]
-                    new_board.state[i][j] = EMPTY
-
                     # update king location
                     if board.state[i][j] == WHITE | KING:
                         new_board.white_king_location = (_move[0], _move[1])
                     elif board.state[i][j] == BLACK | KING:
                         new_board.black_king_location = (_move[0], _move[1])
+
+                    # this will take care of any captures, except for en passant captures
+                    new_board.state[_move[0]][_move[1]] = board.state[i][j]
+                    new_board.state[i][j] = EMPTY
 
                     # if you make your move, and you are in check, this move is not valid
                     if is_check(new_board, board.to_move):
@@ -358,25 +376,29 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                     elif board.state[i][j] == (BLACK | ROOK) and j == 9 and i == 2:
                         new_board.black_king_side_castle = False
 
-                    # deal with setting en passant
-                    if is_pawn(board.state[i][j]):
-                        if abs(i - _move[0]) == 2:
-                            # checks if the pawn has moved two spaces, if it has it can be captured en passant
-                            new_board.state[_move[0]][_move[1]
-                                                      ] = new_board.state[_move[0]][_move[1]] | EN_PASSANT
+                    # checks if the pawn has moved two spaces, if it has it can be captured en passant, record the space behind the pawn
+                    if is_pawn(board.state[i][j]) and abs(i-_move[0]) == 2:
+                        if is_white(board.state[i][j]):
+                            new_board.pawn_double_move = (_move[0]+1, _move[1])
+                        else:
+                            new_board.pawn_double_move = (_move[0]-1, _move[1])
+                    else:
+                        # the most recent move was not a double pawn move, unset any possibly existing pawn double move
+                        new_board.pawn_double_move = None
 
                     # recursively generate the next board state
                     move_states[cur_depth] += 1
                     generate_moves(new_board, cur_depth+1, depth, move_states)
 
                 # take care of en passant captures
-                moves: List[int] = []
-                if is_pawn(board.state[i][j]):
+                if board.pawn_double_move is not None and is_pawn(board.state[i][j]):
+                    moves: List[int] = []
                     pawn_moves_en_passant(
                         i, j, board.state[i][j], board, moves)
 
                     for _move in moves:
                         new_board = copy.deepcopy(board)
+                        new_board.pawn_double_move = None
                         if board.to_move == BLACK:
                             new_board.to_move = WHITE
                         else:
@@ -389,6 +411,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                         else:
                             new_board.state[_move[0]-1][_move[1]] = EMPTY
 
+                        # if you make your move, and you are in check, this move is not valid
                         if is_check(new_board, board.to_move):
                             continue
 

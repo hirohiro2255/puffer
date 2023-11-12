@@ -22,6 +22,7 @@ class Chess:
             self.white_queen_side_castle = True
             self.black_king_side_castle = True
             self.black_queen_side_castle = True
+            self.pawn_double_move = None
 
     def generate_moves(self):
         move_list = []
@@ -201,17 +202,13 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
         col = BOARD_START
 
     # Deal with en passant
+    en_passant_pos: Tuple[int, int] | None = None
     if len(en_passant) != 2:
         if en_passant != "-":
             raise ValueError(
                 "Could not parse fen string: En passant string not valid")
     else:
-        x = algebraic_pairs_to_board_position(en_passant)
-        if x is None:
-            raise ValueError(
-                "Could not parse fen string: Could not parse en passant string")
-        else:
-            b[x[0]][x[1]] = b[x[0]][x[1]] | EN_PASSANT
+        en_passant_pos = algebraic_pairs_to_board_position(en_passant)
 
     board = Chess('settings.json')
     board.state = b
@@ -222,6 +219,7 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
     board.white_queen_side_castle = "Q" in castling_privileges
     board.black_king_side_castle = "k" in castling_privileges
     board.black_queen_side_castle = "q" in castling_privileges
+    board.pawn_double_move = en_passant_pos
     return board
 
 
