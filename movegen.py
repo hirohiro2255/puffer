@@ -3,6 +3,10 @@ from defs import is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIE
 from app import Chess
 
 
+def is_check(board: Chess, color: int) -> bool:
+    return True
+
+
 def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
     piece_type = piece & PIECE_MASK
     if piece_type == PAWN:

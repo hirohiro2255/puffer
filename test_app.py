@@ -5,6 +5,18 @@ from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, 
 
 class TestChessClass(unittest.TestCase):
 
+    def test_correct_king_location(self):
+        b = board_from_fen(
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.assertEqual(b.black_king_location, (2, 6))
+        self.assertEqual(b.white_king_location, (9, 6))
+
+    def test_correct_king_location_two(self):
+        b = board_from_fen(
+            "6rk/1b4np/5pp1/1p6/8/1P3NP1/1B3P1P/5RK1 w KQkq - 0 1")
+        self.assertEqual(b.black_king_location, (2, 9))
+        self.assertEqual(b.white_king_location, (9, 8))
+
     def test_empty_board(self):
         b = board_from_fen("8/8/8/8/8/8/8/8 w KQkq - 0 1")
         for i in range(2, 10):

@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import json
 import copy
-from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3, BOARD_START, BOARD_END, is_empty, COLOR_MASK
+from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3, BOARD_START, BOARD_END, is_empty, COLOR_MASK, is_king, is_white, is_black
 from utils import get_piece_character, get_piece_from_fen_string_char
 
 
@@ -16,6 +16,8 @@ class Chess:
             self.side = 0 if self.fen.split()[1] == 'w' else 1
             self.state = [[0] * 12 for i in range(12)]
             self.to_move = WHITE
+            self.white_king_location = (0, 0)
+            self.black_king_location = (0, 0)
 
     def generate_moves(self):
         move_list = []
@@ -150,6 +152,10 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
     en_passant = fen_config[3]
     halfmove_clock = fen_config[4]
     fullmove_clock = fen_config[5]
+
+    white_king_location = (0, 0)
+    black_king_location = (0, 0)
+
     fen_rows = fen_config[0].split('/')
     if len(fen_rows) != 8:
         raise ValueError(
@@ -176,6 +182,13 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
                         'Could not parse fen string: Invalid character found')
                 else:
                     b[row][col] = piece
+
+                if is_king(b[row][col]):
+                    if is_white(b[row][col]):
+                        white_king_location = (row, col)
+                    else:
+                        black_king_location = (row, col)
+
                 col += 1
         if col != BOARD_END:
             raise ValueError(
@@ -186,6 +199,8 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
     board = Chess('settings.json')
     board.state = b
     board.to_move = to_move
+    board.white_king_location = white_king_location
+    board.black_king_location = black_king_location
     return board
 
 
