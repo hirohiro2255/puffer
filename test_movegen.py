@@ -1,11 +1,36 @@
 import unittest
 
 from app import Chess, board_from_fen
-from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves
-from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP
+from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves
+from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN
 
 
 class TestMoveGen(unittest.TestCase):
+
+    # queen tests
+    def test_white_queen_empty_board(self):
+        b = board_from_fen("8/8/8/8/3Q4/8/8/8 w - - 0 1")
+        ret = []
+        row = 6
+        col = 5
+        queen_moves(row, col, WHITE | QUEEN, b, ret)
+        self.assertEqual(len(ret), 27)
+
+    def test_white_queen_cant_move(self):
+        b = board_from_fen("8/8/8/2NBR3/2PQR3/2RRR3/8/8 w - - 0 1")
+        ret = []
+        row = 6
+        col = 5
+        queen_moves(row, col, WHITE | QUEEN, b, ret)
+        self.assertEqual(len(ret), 0)
+
+    def test_white_queen_hits_other_pieces(self):
+        b = board_from_fen("8/6r1/8/8/3Q4/5N2/8/6P1 w - - 0 1")
+        ret = []
+        row = 6
+        col = 5
+        queen_moves(row, col, WHITE | QUEEN, b, ret)
+        self.assertEqual(len(ret), 25)
 
     # bishop tests
     def test_black_bishop_center_empty_board(self):

@@ -3,6 +3,11 @@ from defs import is_empty, COLOR_MASK, is_white, is_outside_board, is_black
 from app import Chess
 
 
+def queen_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+    rook_moves(row, col, piece, board, moves)
+    bishop_moves(row, col, piece, board, moves)
+
+
 def bishop_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
     mods = [1, -1]
     for i in mods:
