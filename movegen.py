@@ -185,12 +185,12 @@ def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[in
     elif piece_type == KING:
         king_moves(row, col, board, moves)
     elif piece_type == QUEEN:
-        queen_moves(row, col, piece, board, moves)
+        queen_moves(row, col, board, moves)
     else:
         raise ValueError('Unrecognized piece')
 
 
-def queen_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+def queen_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]]):
     rook_moves(row, col, board, moves)
     bishop_moves(row, col, board, moves)
 

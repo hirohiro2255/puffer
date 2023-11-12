@@ -308,7 +308,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 5
-        queen_moves(row, col, WHITE | QUEEN, b, ret)
+        queen_moves(row, col, b, ret)
         self.assertEqual(len(ret), 27)
 
     def test_white_queen_cant_move(self):
@@ -316,7 +316,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 5
-        queen_moves(row, col, WHITE | QUEEN, b, ret)
+        queen_moves(row, col, b, ret)
         self.assertEqual(len(ret), 0)
 
     def test_white_queen_hits_other_pieces(self):
@@ -324,7 +324,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 5
-        queen_moves(row, col, WHITE | QUEEN, b, ret)
+        queen_moves(row, col, b, ret)
         self.assertEqual(len(ret), 25)
 
     # bishop tests
