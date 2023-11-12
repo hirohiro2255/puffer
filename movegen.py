@@ -3,6 +3,24 @@ from defs import is_empty, COLOR_MASK, is_white, is_outside_board, is_black
 from app import Chess
 
 
+def bishop_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int,int]]):
+    mods = [1,-1]
+    for i in mods:
+        for j in mods:
+            multiplier = 1
+            _row = row + i
+            _col = col + j
+            square = board.state[_row][_col]
+            while is_empty(square):
+                moves.append((_row,_col))
+                multiplier += 1
+                _row = row + (i * multiplier)
+                _col = col + (j * multiplier)
+                square = board.state[_row][_col]
+
+            if not is_outside_board(square) and (piece & COLOR_MASK) != (square & COLOR_MASK):
+                moves.append((_row,_col))
+
 def rook_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
     row_start = row+1
     while is_empty(board.state[row_start][col]):

@@ -1,11 +1,20 @@
 import unittest
 
 from app import Chess, board_from_fen
-from movegen import knight_moves, pawn_moves, king_moves, rook_moves
-from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK
+from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves
+from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP
 
 
 class TestMoveGen(unittest.TestCase):
+
+    # bishop tests
+    def test_black_bishop_center_empty_board(self):
+        b = board_from_fen("8/8/8/3b4/8/8/8/8 w - - 0 1")
+        ret = []
+        row = 5
+        col = 5
+        bishop_moves(row,col,BLACK|BISHOP,b,ret)
+        self.assertEqual(len(ret), 13)
 
     # rook tests
     def test_rook_center_of_empty_board(self):
