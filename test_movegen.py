@@ -13,8 +13,32 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 5
         col = 5
-        bishop_moves(row,col,BLACK|BISHOP,b,ret)
+        bishop_moves(row, col, BLACK | BISHOP, b, ret)
         self.assertEqual(len(ret), 13)
+
+    def test_black_bishop_center_with_captures(self):
+        b = board_from_fen("6P1/8/8/3b4/8/1R6/8/3Q4 w - - 0 1")
+        ret = []
+        row = 5
+        col = 5
+        bishop_moves(row, col, BLACK | BISHOP, b, ret)
+        self.assertEqual(len(ret), 12)
+
+    def test_black_bishop_center_with_captures_and_black_pieces(self):
+        b = board_from_fen("6P1/8/2Q5/3b4/2k1n3/1R6/8/b2Q4 w - - 0 1")
+        ret = []
+        row = 5
+        col = 5
+        bishop_moves(row, col, BLACK | BISHOP, b, ret)
+        self.assertEqual(len(ret), 4)
+
+    def test_white_bishop_center_with_captures_and_white_pieces(self):
+        b = board_from_fen("8/8/8/4r3/5B2/8/3Q4/8 w - - 0 1")
+        ret = []
+        row = 6
+        col = 7
+        bishop_moves(row, col, WHITE | BISHOP, b, ret)
+        self.assertEqual(len(ret), 6)
 
     # rook tests
     def test_rook_center_of_empty_board(self):
@@ -54,11 +78,11 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 5
-        rook_moves(row,col,BLACK|ROOK,b,ret)
+        rook_moves(row, col, BLACK | ROOK, b, ret)
         self.assertEqual(len(ret), 7)
 
-
     # knight tests
+
     def test_knight_moves_empty_board(self):
         b = board_from_fen("8/8/8/8/3N4/8/8/8 w - - 0 1")
         ret = []
