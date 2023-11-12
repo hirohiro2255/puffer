@@ -7,6 +7,53 @@ from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN, BOARD_ST
 
 class TestMoveGen(unittest.TestCase):
 
+    def test_queen_checks(self):
+        b = board_from_fen("8/8/8/8/3k1Q2/8/8/8 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/2k5/8/8/8/6Q1/8 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/2K5/8/3q4/8/8/8 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
+        b = board_from_fen("8/8/1K6/2Q5/3q4/8/8/8 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
+        b = board_from_fen("8/5Q2/1K6/8/3q4/8/8/8 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("8/5Q2/1K6/1P6/8/8/1q6/8 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
+        b = board_from_fen("8/2P2Q2/1K6/8/8/8/1q6/8 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+    def test_bishop_checks(self):
+        b = board_from_fen("8/8/8/1B6/8/8/8/5k2 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/2B1B3/1B3B2/1B1k1B2/8/8/8 w - - 0 1")
+        self.assertTrue(not is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/8/5k2/8/8/2B5 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/8/5k2/4n3/8/2B5 w - - 0 1")
+        self.assertTrue(not is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/8/3K4/8/8/6b1 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("8/8/8/8/3K4/4r3/8/6b1 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
+        b = board_from_fen("8/8/8/8/3K4/4r3/8/b5b1 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("8/8/8/8/3K4/2P1r3/8/b5b1 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
     # Rook checks
     def test_rook_checks(self):
         b = board_from_fen("8/8/8/R3k3/8/8/8/8 w - - 0 1")

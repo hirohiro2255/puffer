@@ -46,6 +46,22 @@ def is_check(board: Chess, color: int) -> bool:
         if square == (attacking_color | ROOK) or square == (attacking_color | QUEEN):
             return True
 
+    # Check from bishop or queen
+    mods = [1, -1]
+    for i in mods:
+        for j in mods:
+            multiplier = 1
+            _row = king_location[0] + i
+            _col = king_location[1] + j
+            square = board.state[_row][_col]
+            while is_empty(square):
+                multiplier += 1
+                _row = king_location[0] + i * multiplier
+                _col = king_location[1] + j * multiplier
+                square = board.state[_row][_col]
+
+            if square == (attacking_color | BISHOP) or square == (attacking_color | QUEEN):
+                return True
     return False
 
 
