@@ -1,3 +1,4 @@
+from enum import Enum
 """
     Example Piece: 0b11000101
     1st bit: Color 1 = White, 0 = Black
@@ -75,3 +76,10 @@ BOARD_END = 10
 
 def has_moved(square: int) -> bool:
     return square & MOVED_MASK != 0
+
+
+class CastlingType(Enum):
+    WHITE_KING_SIDE = 1
+    WHITE_QUEEN_SIDE = 2
+    BLACK_KING_SIDE = 4
+    BLACK_QUEEN_SIDE = 8
