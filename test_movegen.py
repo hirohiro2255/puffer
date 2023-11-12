@@ -1,11 +1,22 @@
 import unittest
 
 from app import Chess, board_from_fen
-from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves
-from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN
+from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves, get_moves
+from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN, BOARD_START, BOARD_END, is_white
 
 
 class TestMoveGen(unittest.TestCase):
+
+    def teste_perft_test_depth_one(self):
+        moves = []
+        b = board_from_fen(
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        for i in range(BOARD_START, BOARD_END):
+            for j in range(BOARD_START, BOARD_END):
+                if is_white(b.state[i][j]):
+                    get_moves(i, j, b.state[i][j], b, moves)
+
+        self.assertEqual(len(moves), 20)
 
     # queen tests
     def test_white_queen_empty_board(self):

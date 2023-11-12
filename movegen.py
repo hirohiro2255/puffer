@@ -1,6 +1,24 @@
 from typing import List, Tuple
-from defs import is_empty, COLOR_MASK, is_white, is_outside_board, is_black
+from defs import is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING
 from app import Chess
+
+
+def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+    piece_type = piece & PIECE_MASK
+    if piece_type == PAWN:
+        pawn_moves(row, col, piece, board, moves)
+    elif piece_type == ROOK:
+        rook_moves(row, col, piece, board, moves)
+    elif piece_type == BISHOP:
+        bishop_moves(row, col, piece, board, moves)
+    elif piece_type == KNIGHT:
+        knight_moves(row, col, piece, board, moves)
+    elif piece_type == KING:
+        king_moves(row, col, piece, board, moves)
+    elif piece_type == QUEEN:
+        queen_moves(row, col, piece, board, moves)
+    else:
+        raise ValueError('Unrecognized piece')
 
 
 def queen_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
