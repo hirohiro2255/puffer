@@ -7,28 +7,75 @@ from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN, BOARD_ST
 
 class TestMoveGen(unittest.TestCase):
 
+    def test_black_en_passant_piece_in_way(self):
+        b = board_from_fen("8/8/8/8/pP6/1q6/8/8 w - b4 0 1")
+        ret = []
+        pawn_moves(6, 2, BLACK | PAWN, b, ret)
+        self.assertEqual(len(ret), 1)
+
+    def test_black_pawn_en_passant_wrong_row(self):
+        b = board_from_fen("8/8/8/pP6/8/8/8/8 w - b5 0 1")
+        ret = []
+        pawn_moves(5, 2, BLACK | PAWN, b, ret)
+        self.assertEqual(len(ret), 1)
+
+    def test_black_pawn_en_passant_right(self):
+        b = board_from_fen("8/8/8/8/pP6/8/8/8 w - b4 0 1")
+        ret = []
+        pawn_moves(6, 2, BLACK | PAWN, b, ret)
+        self.assertEqual(len(ret), 2)
+
+    def test_black_en_passant_left(self):
+        b = board_from_fen("8/8/8/8/1Pp5/8/8/8 w - b4 0 1")
+        ret = []
+        pawn_moves(6, 4, BLACK | PAWN, b, ret)
+        self.assertEqual(len(ret), 2)
+
+    def test_white_en_passant_piece_in_way(self):
+        b = board_from_fen("8/8/3Q4/3pP3/8/8/8/8 w - d5 0 1")
+        ret = []
+        pawn_moves(5, 6, WHITE | PAWN, b, ret)
+        self.assertEqual(len(ret), 1)
+
+    def test_white_pawn_en_passant_wrong_row(self):
+        b = board_from_fen("8/8/8/8/4Pp2/8/8/8 w - f4 0 1")
+        ret = []
+        pawn_moves(6, 6, WHITE | PAWN, b, ret)
+        self.assertEqual(len(ret), 1)
+
+    def test_white_pawn_en_passant_right(self):
+        b = board_from_fen("8/8/8/4Pp2/8/8/8/8 w - f5 0 1")
+        ret = []
+        pawn_moves(5, 6, WHITE | PAWN, b, ret)
+        self.assertEqual(len(ret), 2)
+
+    def test_white_pawn_en_passant_left(self):
+        b = board_from_fen("8/8/8/3pP3/8/8/8/8 w - d5 0 1")
+        ret = []
+        pawn_moves(5, 6, WHITE | PAWN, b, ret)
+        self.assertEqual(len(ret), 2)
+
     def test_black_queen_side_castle(self):
         b = board_from_fen("r3k3/8/8/8/8/8/8/8 w KQkq - 0 1")
-        self.assertTrue(can_castle(b,CastlingType.BLACK_QUEEN_SIDE))
+        self.assertTrue(can_castle(b, CastlingType.BLACK_QUEEN_SIDE))
 
         b = board_from_fen("r3k3/qpb5/3n4/8/8/8/8/8 w KQkq - 0 1")
-        self.assertTrue(can_castle(b,CastlingType.BLACK_QUEEN_SIDE))
+        self.assertTrue(can_castle(b, CastlingType.BLACK_QUEEN_SIDE))
 
         b = board_from_fen("r3k3/qpb5/3n4/8/8/8/8/4Q3 w KQkq - 0 1")
-        self.assertTrue(not can_castle(b,CastlingType.BLACK_QUEEN_SIDE))
+        self.assertTrue(not can_castle(b, CastlingType.BLACK_QUEEN_SIDE))
 
         b = board_from_fen("r3k3/qpb5/3n4/8/7Q/8/8/8 w KQkq - 0 1")
-        self.assertTrue(not can_castle(b,CastlingType.BLACK_QUEEN_SIDE))
+        self.assertTrue(not can_castle(b, CastlingType.BLACK_QUEEN_SIDE))
 
         b = board_from_fen("r2Pk3/qpb5/3n4/8/8/8/8/P7 w KQkq - 0 1")
-        self.assertTrue(not can_castle(b,CastlingType.BLACK_QUEEN_SIDE))
+        self.assertTrue(not can_castle(b, CastlingType.BLACK_QUEEN_SIDE))
 
         b = board_from_fen("r1p1k3/qpb5/3n4/8/8/8/8/P7 w KQkq - 0 1")
-        self.assertTrue(not can_castle(b,CastlingType.BLACK_QUEEN_SIDE))
+        self.assertTrue(not can_castle(b, CastlingType.BLACK_QUEEN_SIDE))
 
         b = board_from_fen("rn2k3/qpb5/3n4/8/8/8/8/P7 w KQkq - 0 1")
-        self.assertTrue(not can_castle(b,CastlingType.BLACK_QUEEN_SIDE))
-
+        self.assertTrue(not can_castle(b, CastlingType.BLACK_QUEEN_SIDE))
 
     def test_black_king_side_castle(self):
         b = board_from_fen("1p2k2r/8/8/8/8/8/8/8 w KQkq - 0 1")
@@ -47,8 +94,7 @@ class TestMoveGen(unittest.TestCase):
         self.assertTrue(not can_castle(b, CastlingType.BLACK_KING_SIDE))
 
         b = board_from_fen("1p2kN1r/4bp1p/6pn/3n4/8/8/8/1P4P1 w KQkq - 0 1")
-        self.assertTrue(not can_castle(b, CastlingType.BLACK_KING_SIDE)) 
-
+        self.assertTrue(not can_castle(b, CastlingType.BLACK_KING_SIDE))
 
     def test_white_queen_side_castle(self):
         b = board_from_fen("8/8/8/8/8/8/8/R3K3 w KQkq - 0 1")
@@ -71,8 +117,6 @@ class TestMoveGen(unittest.TestCase):
 
         b = board_from_fen("8/8/8/8/8/2P5/PP1P4/RQ2K1N1 w KQkq - 0 1")
         self.assertTrue(not can_castle(b, CastlingType.WHITE_QUEEN_SIDE))
-
-
 
     def test_white_king_side_castle(self):
         b = board_from_fen("8/8/8/8/8/8/8/4K2R w KQkq - 0 1")

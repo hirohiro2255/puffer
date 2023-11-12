@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from defs import WHITE, is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING, BLACK, CastlingType
+from defs import WHITE, is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING, BLACK, CastlingType, BOARD_END, BOARD_START, EN_PASSANT
 from app import Chess
 
 """
@@ -251,6 +251,12 @@ def pawn_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[i
             if row == 8 and is_empty(board.state[row-2][col]):
                 moves.append((row-2, col))
 
+        # check en passant
+        if row == BOARD_START+3:
+            if board.state[row][col-1] == (BLACK | PAWN | EN_PASSANT) and is_empty(board.state[row-1][col-1]):
+                moves.append((row-1, col-1))
+            if board.state[row][col+1] == (BLACK | PAWN | EN_PASSANT) and is_empty(board.state[row-1][col+1]):
+                moves.append((row-1, col+1))
     else:
         # check capture
         left_cap = board.state[row+1][col+1]
@@ -267,6 +273,13 @@ def pawn_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[i
             # check double push
             if row == 3 and is_empty(board.state[row+2][col]):
                 moves.append((row+2, col))
+
+        # check en passant
+        if row == BOARD_START+4:
+            if board.state[row][col-1] == (WHITE | PAWN | EN_PASSANT) and is_empty(board.state[row+1][col-1]):
+                moves.append((row+1, col-1))
+            if board.state[row][col+1] == (WHITE | PAWN | EN_PASSANT) and is_empty(board.state[row+1][col+1]):
+                moves.append((row+1, col+1))
 
 
 KNIGHT_CORDS = [(1, 2),
