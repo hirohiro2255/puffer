@@ -177,7 +177,7 @@ def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[in
     if piece_type == PAWN:
         pawn_moves(row, col, board, moves)
     elif piece_type == ROOK:
-        rook_moves(row, col, piece, board, moves)
+        rook_moves(row, col, board, moves)
     elif piece_type == BISHOP:
         bishop_moves(row, col, piece, board, moves)
     elif piece_type == KNIGHT:
@@ -191,7 +191,7 @@ def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[in
 
 
 def queen_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
-    rook_moves(row, col, piece, board, moves)
+    rook_moves(row, col, board, moves)
     bishop_moves(row, col, piece, board, moves)
 
 
@@ -214,8 +214,9 @@ def bishop_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple
                 moves.append((_row, _col))
 
 
-def rook_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+def rook_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]]):
     mods = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    piece = board.state[row][col]
     for m in mods:
         mutiplier = 1
         _row = row + m[0]

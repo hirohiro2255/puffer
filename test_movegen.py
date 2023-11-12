@@ -366,7 +366,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 5
-        rook_moves(row, col, WHITE | ROOK, b, ret)
+        rook_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 14)
 
     def test_rook_center_of_board(self):
@@ -374,7 +374,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 5
-        rook_moves(row, col, WHITE | ROOK, b, ret)
+        rook_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 4)
 
     def test_rook_center_of_board_with_white_pieces(self):
@@ -382,23 +382,23 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 5
-        rook_moves(row, col, WHITE | ROOK, b, ret)
+        rook_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 8)
 
     def test_rook_corner(self):
-        b = board_from_fen("7p/3N4/8/4n3/2kR4/3b4/8/8 w - - 0 1")
+        b = board_from_fen("7p/3N4/K7/4n3/2kR4/3b4/8/7R w - - 0 1")
         ret = []
         row = 9
         col = 9
-        rook_moves(row, col, WHITE | ROOK, b, ret)
+        rook_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 14)
 
     def test_black_rook_center_of_board_with_white_pieces(self):
-        b = board_from_fen("7p/3N4/8/4n3/2kR4/3b4/8/8 w - - 0 1")
+        b = board_from_fen("7p/3N4/8/4n3/2kr4/3b4/8/K7 w - - 0 1")
         ret = []
         row = 6
         col = 5
-        rook_moves(row, col, BLACK | ROOK, b, ret)
+        rook_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 7)
 
     # knight tests
