@@ -408,7 +408,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 5
-        knight_moves(row, col, WHITE | KNIGHT, b, ret)
+        knight_moves(row, col, b, ret)
         self.assertEqual(len(ret), 8)
 
     def test_moves_corner(self):
@@ -416,7 +416,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 2
         col = 2
-        knight_moves(row, col, WHITE | KNIGHT, b, ret)
+        knight_moves(row, col, b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_knight_moves_with_other_pieces_with_capture(self):
@@ -424,7 +424,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 5
         col = 5
-        knight_moves(row, col, WHITE | KNIGHT, b, ret)
+        knight_moves(row, col, b, ret)
         self.assertEqual(len(ret), 7)
 
     # pawn tests -- white pawn
