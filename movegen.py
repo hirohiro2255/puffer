@@ -3,8 +3,8 @@ from defs import is_empty, COLOR_MASK, is_white, is_outside_board, is_black
 from app import Chess
 
 
-def bishop_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int,int]]):
-    mods = [1,-1]
+def bishop_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+    mods = [1, -1]
     for i in mods:
         for j in mods:
             multiplier = 1
@@ -12,60 +12,45 @@ def bishop_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple
             _col = col + j
             square = board.state[_row][_col]
             while is_empty(square):
-                moves.append((_row,_col))
+                moves.append((_row, _col))
                 multiplier += 1
                 _row = row + (i * multiplier)
                 _col = col + (j * multiplier)
                 square = board.state[_row][_col]
 
             if not is_outside_board(square) and (piece & COLOR_MASK) != (square & COLOR_MASK):
-                moves.append((_row,_col))
+                moves.append((_row, _col))
+
 
 def rook_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
-    row_start = row+1
-    while is_empty(board.state[row_start][col]):
-        moves.append((row_start, col))
-        row_start += 1
+    mods = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    for m in mods:
+        mutiplier = 1
+        _row = row + m[0]
+        _col = col + m[1]
+        square = board.state[_row][_col]
+        while is_empty(square):
+            moves.append((_row, _col))
+            mutiplier += 1
+            _row = row + (m[0] * mutiplier)
+            _col = col + (m[1] * mutiplier)
+            square = board.state[_row][_col]
 
-    if not is_outside_board(board.state[row_start][col]) and (piece & COLOR_MASK) != board.state[row_start][col] & COLOR_MASK:
-        moves.append((row_start+1, col))
-
-    row_start = row-1
-    while is_empty(board.state[row_start][col]):
-        moves.append((row_start, col))
-        row_start -= 1
-
-    if not is_outside_board(board.state[row_start][col]) and (piece & COLOR_MASK) != (board.state[row_start][col] & COLOR_MASK):
-        moves.append((row_start-1, col))
-
-    col_start = col+1
-    while is_empty(board.state[row][col_start]):
-        moves.append((row, col_start))
-        col_start += 1
-
-    if not is_outside_board(board.state[row][col_start]) and (piece & COLOR_MASK) != (board.state[row][col_start] & COLOR_MASK):
-        moves.append((row, col_start+1))
-
-    col_start = col-1
-    while is_empty(board.state[row][col_start]):
-        moves.append((row, col_start))
-        col_start -= 1
-
-    if not is_outside_board(board.state[row][col_start]) and (piece & COLOR_MASK) != (board.state[row][col_start] & COLOR_MASK):
-        moves.append((row, col_start-1))
+        if not is_outside_board(square) and (piece & COLOR_MASK) != (square & COLOR_MASK):
+            moves.append((_row, _col))
 
 
 def king_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
     for i in range(-1, 2):
         for j in range(-1, 2):
-            r = row+i
-            c = col+j
+            _row = row+i
+            _col = col+j
 
-            if is_outside_board(board.state[r][c]):
+            if is_outside_board(board.state[_row][_col]):
                 continue
 
-            if is_empty(board.state[r][c]) or (board.state[r][c] & COLOR_MASK) != (piece & COLOR_MASK):
-                moves.append((r, c))
+            if is_empty(board.state[_row][_col]) or (board.state[_row][_col] & COLOR_MASK) != (piece & COLOR_MASK):
+                moves.append((_row, _col))
 
 
 def pawn_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
@@ -118,10 +103,10 @@ def knight_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple
     for mods in cords:
         _row = row + mods[0]
         _col = col + mods[1]
-        space = board.state[_row][_col]
+        square = board.state[_row][_col]
 
         if is_outside_board(board.state[_row][_col]):
             continue
 
-        if is_empty(space) or (space & COLOR_MASK) != piece & COLOR_MASK:
+        if is_empty(square) or (square & COLOR_MASK) != piece & COLOR_MASK:
             moves.append((_row, _col))
