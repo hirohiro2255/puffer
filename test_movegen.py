@@ -433,7 +433,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 8
         col = 2
-        pawn_moves(row, col, WHITE | PAWN, b, ret)
+        pawn_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_white_pawn_has_moved(self):
@@ -441,7 +441,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 7
         col = 5
-        pawn_moves(row, col, WHITE | PAWN, b, ret)
+        pawn_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 1)
 
     def test_white_pawn_cant_move_black_piece_block(self):
@@ -449,7 +449,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 7
         col = 5
-        pawn_moves(row, col, WHITE | PAWN, b, ret)
+        pawn_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 0)
 
     def test_white_pawn_cant_move_white_piece_block(self):
@@ -457,7 +457,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 7
         col = 5
-        pawn_moves(row, col, WHITE | PAWN, b, ret)
+        pawn_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 0)
 
     def test_white_pawn_with_two_captures_and_start(self):
@@ -465,7 +465,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 8
         col = 3
-        pawn_moves(row, col, WHITE | PAWN, b, ret)
+        pawn_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 4)
 
     def test_white_pawn_with_one_capture(self):
@@ -473,7 +473,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 5
         col = 3
-        pawn_moves(row, col, WHITE | PAWN, b, ret)
+        pawn_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_white_pawn_double_push_piece_in_front(self):
@@ -481,7 +481,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 8
         col = 2
-        pawn_moves(row, col, WHITE | PAWN, b, ret)
+        pawn_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 0)
 
     # pawn tests -- black pawn
@@ -490,7 +490,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 3
         col = 2
-        pawn_moves(row, col, BLACK | PAWN, b, ret)
+        pawn_moves(row, col, b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_black_pawn_has_moved(self):
@@ -498,7 +498,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 5
         col = 5
-        pawn_moves(row, col, BLACK | PAWN, b, ret)
+        pawn_moves(row, col, b, ret)
         self.assertEqual(len(ret), 1)
 
     def test_black_pawn_cant_move_white_piece_block(self):
@@ -506,7 +506,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 3
         col = 5
-        pawn_moves(row, col, BLACK | PAWN, b, ret)
+        pawn_moves(row, col, b, ret)
         self.assertEqual(len(ret), 0)
 
     def test_black_pawn_with_two_captures_and_start(self):
@@ -514,7 +514,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 3
         col = 5
-        pawn_moves(row, col, BLACK | PAWN, b, ret)
+        pawn_moves(row, col, b, ret)
         self.assertEqual(len(ret), 4)
 
     def test_black_pawn_with_one_capture(self):
@@ -522,7 +522,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 3
         col = 5
-        pawn_moves(row, col, BLACK | PAWN, b, ret)
+        pawn_moves(row, col, b, ret)
         self.assertEqual(len(ret), 1)
 
     # piece test -- king

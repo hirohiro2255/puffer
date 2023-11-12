@@ -175,7 +175,7 @@ def is_check_cords(board: Chess, color: int, square_cords: Tuple[int, int]) -> b
 def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
     piece_type = piece & PIECE_MASK
     if piece_type == PAWN:
-        pawn_moves(row, col, piece, board, moves)
+        pawn_moves(row, col, board, moves)
     elif piece_type == ROOK:
         rook_moves(row, col, piece, board, moves)
     elif piece_type == BISHOP:
@@ -245,7 +245,8 @@ def king_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[i
                 moves.append((_row, _col))
 
 
-def pawn_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+def pawn_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]]):
+    piece = board.state[row][col]
     # white pawns move up board
     if is_white(piece):
         # check capture
