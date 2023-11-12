@@ -333,7 +333,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 5
         col = 5
-        bishop_moves(row, col, BLACK | BISHOP, b, ret)
+        bishop_moves(row, col,  b, ret)
         self.assertEqual(len(ret), 13)
 
     def test_black_bishop_center_with_captures(self):
@@ -341,7 +341,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 5
         col = 5
-        bishop_moves(row, col, BLACK | BISHOP, b, ret)
+        bishop_moves(row, col, b, ret)
         self.assertEqual(len(ret), 12)
 
     def test_black_bishop_center_with_captures_and_black_pieces(self):
@@ -349,7 +349,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 5
         col = 5
-        bishop_moves(row, col, BLACK | BISHOP, b, ret)
+        bishop_moves(row, col, b, ret)
         self.assertEqual(len(ret), 4)
 
     def test_white_bishop_center_with_captures_and_white_pieces(self):
@@ -357,7 +357,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 6
         col = 7
-        bishop_moves(row, col, WHITE | BISHOP, b, ret)
+        bishop_moves(row, col, b, ret)
         self.assertEqual(len(ret), 6)
 
     # rook tests
