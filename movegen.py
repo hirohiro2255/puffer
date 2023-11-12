@@ -183,7 +183,7 @@ def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[in
     elif piece_type == KNIGHT:
         knight_moves(row, col, board, moves)
     elif piece_type == KING:
-        king_moves(row, col, piece, board, moves)
+        king_moves(row, col, board, moves)
     elif piece_type == QUEEN:
         queen_moves(row, col, piece, board, moves)
     else:
@@ -234,7 +234,8 @@ def rook_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]]):
             moves.append((_row, _col))
 
 
-def king_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+def king_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]]):
+    piece = board.state[row][col]
     for i in range(-1, 2):
         for j in range(-1, 2):
             _row = row+i

@@ -527,11 +527,11 @@ class TestMoveGen(unittest.TestCase):
 
     # piece test -- king
     def test_king_empty_board_center(self):
-        b = board_from_fen("8/8/8/8/3K4/8/8/8 w - - 0 1")
+        b = board_from_fen("8/8/8/8/3K4/8/8/k7 w - - 0 1")
         ret = []
-        row = 5
-        col = 6
-        king_moves(row, col, WHITE | KING, b, ret)
+        row = 6
+        col = 5
+        king_moves(row, col, b, ret)
         self.assertEqual(len(ret), 8)
 
     def test_king_start_pos(self):
@@ -539,7 +539,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 9
         col = 6
-        king_moves(row, col, WHITE | KING, b, ret)
+        king_moves(row, col, b, ret)
         self.assertEqual(len(ret), 5)
 
     def test_king_start_pos_other_pieces(self):
@@ -547,7 +547,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 9
         col = 6
-        king_moves(row, col, WHITE | KING, b, ret)
+        king_moves(row, col, b, ret)
         self.assertEqual(len(ret), 2)
 
     def test_king_black_other_pieces(self):
@@ -555,7 +555,7 @@ class TestMoveGen(unittest.TestCase):
         ret = []
         row = 8
         col = 6
-        king_moves(row, col, BLACK | KING, b, ret)
+        king_moves(row, col, b, ret)
         self.assertEqual(len(ret), 6)
 
 
