@@ -91,10 +91,10 @@ class CastlingType(Enum):
     BLACK_QUEEN_SIDE = 8
 
 
-def algebraic_pairs_to_board_position(pair: str) -> Tuple[int, int]:
+def algebraic_pairs_to_board_position(pair: str) -> Tuple[int, int] | None:
 
     if len(pair) != 2:
-        raise ValueError('Algebraic position str length is wrong')
+        return None
 
     c = pair[0]
     r = pair[1]
@@ -116,10 +116,10 @@ def algebraic_pairs_to_board_position(pair: str) -> Tuple[int, int]:
     elif c == "h":
         col = 7
     else:
-        raise ValueError("Could not parse column of algebraic position")
+        return None
 
     row = BOARD_END - int(r)
     if row < BOARD_START or row >= BOARD_END:
-        raise ValueError('Could not parse row of algebraic position')
+        return None
 
     return (row, col+BOARD_START)

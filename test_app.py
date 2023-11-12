@@ -5,6 +5,12 @@ from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, 
 
 class TestChessClass(unittest.TestCase):
 
+    def test_correct_en_passant_privileges(self):
+        b = board_from_fen(
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e4 0 1")
+        self.assertEqual(b.state[BOARD_START+4]
+                         [BOARD_START+4], WHITE | PAWN | EN_PASSANT)
+
     def test_algebraic_translation_correct(self):
         res = algebraic_pairs_to_board_position("a8")
         self.assertEqual(res[0], BOARD_START)
@@ -23,12 +29,12 @@ class TestChessClass(unittest.TestCase):
         self.assertEqual(res[1], BOARD_START+2)
 
     def test_algebraic_translation_value_error(self):
-        with self.assertRaises(ValueError):
-            res = algebraic_pairs_to_board_position("z1")
+        res = algebraic_pairs_to_board_position("z1")
+        self.assertIsNone(res)
 
     def test_algebraic_translation_value_too_long(self):
-        with self.assertRaises(ValueError):
-            res = algebraic_pairs_to_board_position("a11")
+        res = algebraic_pairs_to_board_position("a11")
+        self.assertIsNone(res)
 
     def test_correct_castling_privileges(self):
         b = board_from_fen(

@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import json
 import copy
-from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3, BOARD_START, BOARD_END, is_empty, COLOR_MASK, is_king, is_white, is_black
+from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3, BOARD_START, BOARD_END, is_empty, COLOR_MASK, is_king, is_white, is_black, algebraic_pairs_to_board_position, EN_PASSANT
 from utils import get_piece_character, get_piece_from_fen_string_char
 
 
@@ -199,6 +199,19 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
                 'Could not parse fen string: Complete row was not specified')
         row += 1
         col = BOARD_START
+
+    # Deal with en passant
+    if len(en_passant) != 2:
+        if en_passant != "-":
+            raise ValueError(
+                "Could not parse fen string: En passant string not valid")
+    else:
+        x = algebraic_pairs_to_board_position(en_passant)
+        if x is None:
+            raise ValueError(
+                "Could not parse fen string: Could not parse en passant string")
+        else:
+            b[x[0]][x[1]] = b[x[0]][x[1]] | EN_PASSANT
 
     board = Chess('settings.json')
     board.state = b
