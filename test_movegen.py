@@ -298,7 +298,7 @@ class TestMoveGen(unittest.TestCase):
         for i in range(BOARD_START, BOARD_END):
             for j in range(BOARD_START, BOARD_END):
                 if is_white(b.state[i][j]):
-                    get_moves(i, j, b.state[i][j], b, moves)
+                    get_moves(i, j, b, moves)
 
         self.assertEqual(len(moves), 20)
 

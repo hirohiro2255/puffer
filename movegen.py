@@ -172,7 +172,8 @@ def is_check_cords(board: Chess, color: int, square_cords: Tuple[int, int]) -> b
     return False
 
 
-def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+def get_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]]):
+    piece = board.state[row][col]
     piece_type = piece & PIECE_MASK
     if piece_type == PAWN:
         pawn_moves(row, col, board, moves)
@@ -343,7 +344,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
             color = get_color(board.state[i][j])
             if color is not None and color == board.to_move:
                 moves: List[int] = []
-                get_moves(i, j, board.state[i][j], board, moves)
+                get_moves(i, j, board, moves)
                 for _move in moves:
                     new_board = copy.deepcopy(board)
                     if board.to_move == BLACK:
