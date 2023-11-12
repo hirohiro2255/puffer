@@ -1,15 +1,17 @@
 from typing import List, Tuple
-from defs import WHITE, is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING
+from defs import WHITE, is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING, BLACK
 from app import Chess
 
 
 def is_check(board: Chess, color: int) -> bool:
     king_location = (0, 0)
-    attacking_color = ~color & COLOR_MASK
+    attacking_color = None
     if color == WHITE:
         king_location = board.white_king_location
+        attacking_color = BLACK
     else:
         king_location = board.black_king_location
+        attacking_color = WHITE
 
     # Check from knight
     for mods in KNIGHT_CORDS:

@@ -18,6 +18,10 @@ class Chess:
             self.to_move = WHITE
             self.white_king_location = (0, 0)
             self.black_king_location = (0, 0)
+            self.white_king_side_castle = True
+            self.white_queen_side_castle = True
+            self.black_king_side_castle = True
+            self.black_queen_side_castle = True
 
     def generate_moves(self):
         move_list = []
@@ -201,6 +205,10 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
     board.to_move = to_move
     board.white_king_location = white_king_location
     board.black_king_location = black_king_location
+    board.white_king_side_castle = "K" in castling_privileges
+    board.white_queen_side_castle = "Q" in castling_privileges
+    board.black_king_side_castle = "k" in castling_privileges
+    board.black_queen_side_castle = "q" in castling_privileges
     return board
 
 

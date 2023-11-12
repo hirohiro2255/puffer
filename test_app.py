@@ -5,6 +5,27 @@ from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, 
 
 class TestChessClass(unittest.TestCase):
 
+    def test_correct_castling_privileges(self):
+        b = board_from_fen(
+            "6rk/1b4np/5pp1/1p6/8/1P3NP1/1B3P1P/5RK1 w KQkq - 0 1")
+        self.assertTrue(b.white_king_side_castle)
+        self.assertTrue(b.white_queen_side_castle)
+        self.assertTrue(b.black_king_side_castle)
+        self.assertTrue(b.black_queen_side_castle)
+
+        b = board_from_fen("6rk/1b4np/5pp1/1p6/8/1P3NP1/1B3P1P/5RK1 w - - 0 1")
+        self.assertTrue(not b.white_king_side_castle)
+        self.assertTrue(not b.white_queen_side_castle)
+        self.assertTrue(not b.black_king_side_castle)
+        self.assertTrue(not b.black_queen_side_castle)
+
+        b = board_from_fen(
+            "6rk/1b4np/5pp1/1p6/8/1P3NP1/1B3P1P/5RK1 w Kq - 0 1")
+        self.assertTrue(not b.black_king_side_castle)
+        self.assertTrue(b.black_queen_side_castle)
+        self.assertTrue(b.white_king_side_castle)
+        self.assertTrue(not b.white_queen_side_castle)
+
     def test_correct_king_location(self):
         b = board_from_fen(
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
