@@ -283,7 +283,8 @@ def pawn_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]]):
                 moves.append((row+2, col))
 
 
-def pawn_moves_en_passant(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+def pawn_moves_en_passant(row: int, col: int,  board: Chess, moves: List[Tuple[int, int]]):
+    piece = board.state[row][col]
     if board.pawn_double_move is None:
         return
 
@@ -395,7 +396,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                 if board.pawn_double_move is not None and is_pawn(board.state[i][j]):
                     moves: List[int] = []
                     pawn_moves_en_passant(
-                        i, j, board.state[i][j], board, moves)
+                        i, j,  board, moves)
 
                     for _move in moves:
                         new_board = copy.deepcopy(board)
