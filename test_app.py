@@ -1,9 +1,34 @@
 import unittest
 from app import Chess, board_from_fen
-from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, is_pawn, is_knight, is_bishop, is_rook, is_queen, is_king, is_empty, is_outside_board, EMPTY, SENTINEL, has_moved, MOVED_MASK
+from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, is_pawn, is_knight, is_bishop, is_rook, is_queen, is_king, is_empty, is_outside_board, EMPTY, SENTINEL, has_moved, MOVED_MASK, pawn_did_double_move, EN_PASSANT, algebraic_pairs_to_board_position, BOARD_START, BOARD_END
 
 
 class TestChessClass(unittest.TestCase):
+
+    def test_algebraic_translation_correct(self):
+        res = algebraic_pairs_to_board_position("a8")
+        self.assertEqual(res[0], BOARD_START)
+        self.assertEqual(res[1], BOARD_START)
+
+        res = algebraic_pairs_to_board_position("h1")
+        self.assertEqual(res[0], BOARD_END-1)
+        self.assertEqual(res[1], BOARD_END-1)
+
+        res = algebraic_pairs_to_board_position("a6")
+        self.assertEqual(res[0], BOARD_START+2)
+        self.assertEqual(res[1], BOARD_START)
+
+        res = algebraic_pairs_to_board_position("c5")
+        self.assertEqual(res[0], BOARD_START+3)
+        self.assertEqual(res[1], BOARD_START+2)
+
+    def test_algebraic_translation_value_error(self):
+        with self.assertRaises(ValueError):
+            res = algebraic_pairs_to_board_position("z1")
+
+    def test_algebraic_translation_value_too_long(self):
+        with self.assertRaises(ValueError):
+            res = algebraic_pairs_to_board_position("a11")
 
     def test_correct_castling_privileges(self):
         b = board_from_fen(
@@ -153,6 +178,11 @@ class TestChessClass(unittest.TestCase):
         self.assertTrue(is_outside_board(SENTINEL))
         self.assertTrue(not is_outside_board(EMPTY))
         self.assertTrue(not is_outside_board(WHITE | KING))
+
+        self.assertTrue(pawn_did_double_move(WHITE | PAWN | EN_PASSANT))
+        self.assertTrue(pawn_did_double_move(BLACK | PAWN | EN_PASSANT))
+        self.assertTrue(not pawn_did_double_move(WHITE | PAWN))
+        self.assertTrue(not pawn_did_double_move(BLACK | PAWN))
 
         self.assertTrue(has_moved(WHITE | PAWN | MOVED_MASK))
         self.assertTrue(not has_moved(WHITE | PAWN))

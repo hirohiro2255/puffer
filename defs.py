@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Tuple
 """
     Example Piece: 0b11000101
     1st bit: Color 1 = White, 0 = Black
@@ -15,6 +16,7 @@ WHITE = 0b10000000
 BLACK = 0b00000000
 
 PIECE_MASK = 0b00000111
+EN_PASSANT = 0b01000000
 PAWN = 0b00000001
 KNIGHT = 0b00000010
 BISHOP = 0b00000011
@@ -78,8 +80,46 @@ def has_moved(square: int) -> bool:
     return square & MOVED_MASK != 0
 
 
+def pawn_did_double_move(pawn: int) -> bool:
+    return pawn & EN_PASSANT != 0
+
+
 class CastlingType(Enum):
     WHITE_KING_SIDE = 1
     WHITE_QUEEN_SIDE = 2
     BLACK_KING_SIDE = 4
     BLACK_QUEEN_SIDE = 8
+
+
+def algebraic_pairs_to_board_position(pair: str) -> Tuple[int, int]:
+
+    if len(pair) != 2:
+        raise ValueError('Algebraic position str length is wrong')
+
+    c = pair[0]
+    r = pair[1]
+    col = None
+    if c == "a":
+        col = 0
+    elif c == "b":
+        col = 1
+    elif c == "c":
+        col = 2
+    elif c == "d":
+        col = 3
+    elif c == "e":
+        col = 4
+    elif c == "f":
+        col = 5
+    elif c == "g":
+        col = 6
+    elif c == "h":
+        col = 7
+    else:
+        raise ValueError("Could not parse column of algebraic position")
+
+    row = BOARD_END - int(r)
+    if row < BOARD_START or row >= BOARD_END:
+        raise ValueError('Could not parse row of algebraic position')
+
+    return (row, col+BOARD_START)
