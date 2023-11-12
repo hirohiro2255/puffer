@@ -11,6 +11,12 @@ class TestChessClass(unittest.TestCase):
         self.assertEqual(b.state[BOARD_START+4]
                          [BOARD_START+4], WHITE | PAWN | EN_PASSANT)
 
+    def test_correct_en_passant_privileges_black(self):
+        b = board_from_fen(
+            "rnbqkbnr/ppppppp1/8/7p/8/8/PPPPPPPP/RNBQKBNR w KQkq h5 0 1")
+        self.assertEqual(b.state[BOARD_START+3]
+                         [BOARD_START+7], BLACK | PAWN | EN_PASSANT)
+
     def test_algebraic_translation_correct(self):
         res = algebraic_pairs_to_board_position("a8")
         self.assertEqual(res[0], BOARD_START)
