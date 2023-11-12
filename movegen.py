@@ -1,10 +1,36 @@
 from typing import List, Tuple
-from defs import is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING
+from defs import WHITE, is_empty, COLOR_MASK, is_white, is_outside_board, is_black, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, KING
 from app import Chess
 
 
 def is_check(board: Chess, color: int) -> bool:
-    return True
+    king_location = (0, 0)
+    attacking_color = ~color & COLOR_MASK
+    if color == WHITE:
+        king_location = board.white_king_location
+    else:
+        king_location = board.black_king_location
+
+    # Check from knight
+    for mods in KNIGHT_CORDS:
+        _row = king_location[0] + mods[0]
+        _col = king_location[1] + mods[1]
+        square = board.state[_row][_col]
+
+        if square == (KNIGHT | attacking_color):
+            return True
+
+    # Cehck from pawn
+    _row = None
+    if color == WHITE:
+        _row = king_location[0] - 1
+    else:
+        _row = king_location[0] + 1
+
+    if board.state[_row][king_location[1]-1] == (attacking_color | PAWN) or board.state[_row][king_location[1]+1] == (attacking_color | PAWN):
+        return True
+
+    return False
 
 
 def get_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
@@ -117,17 +143,19 @@ def pawn_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[i
                 moves.append((row+2, col))
 
 
-def knight_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
-    cords = [(1, 2),
-             (1, -2),
-             (2, 1),
-             (2, -1),
-             (-1, 2),
-             (-1, -2),
-             (-2, -1),
-             (-2, 1)]
+KNIGHT_CORDS = [(1, 2),
+                (1, -2),
+                (2, 1),
+                (2, -1),
+                (-1, 2),
+                (-1, -2),
+                (-2, -1),
+                (-2, 1)]
 
-    for mods in cords:
+
+def knight_moves(row: int, col: int, piece: int, board: Chess, moves: List[Tuple[int, int]]):
+
+    for mods in KNIGHT_CORDS:
         _row = row + mods[0]
         _col = col + mods[1]
         square = board.state[_row][_col]

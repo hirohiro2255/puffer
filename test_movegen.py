@@ -1,11 +1,56 @@
 import unittest
 
 from app import Chess, board_from_fen
-from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves, get_moves
+from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves, get_moves, is_check
 from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN, BOARD_START, BOARD_END, is_white
 
 
 class TestMoveGen(unittest.TestCase):
+
+    def test_check_sanity_test(self):
+        b = board_from_fen("8/8/8/8/3K4/8/8/8 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
+    def test_knight_checks(self):
+        b = board_from_fen("8/8/4n3/8/3K4/8/8/8 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("8/8/8/8/8/8/1RK5/nRB5 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("8/8/8/8/3k4/5N2/8/8 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/8/3k4/5n2/8/7N w - - 0 1")
+        self.assertTrue(not is_check(b, BLACK))
+
+        b = board_from_fen("8/8/2N5/8/3k4/5n2/8/7N w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+    def test_pawn_checks(self):
+        b = board_from_fen("8/8/8/4k3/3P4/8/8/8 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/4k3/5P2/8/8/8 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/4k3/4P3/8/8/8 w - - 0 1")
+        self.assertTrue(not is_check(b, BLACK))
+
+        b = board_from_fen("8/8/3PPP2/4k3/8/8/8/8 w - - 0 1")
+        self.assertTrue(not is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/8/8/5p2/6K1/8 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("8/8/8/8/8/7p/6K1/8 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("8/8/8/8/8/6p1/6K1/8 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
+        b = board_from_fen("8/8/8/8/8/6K1/5ppp/8 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
 
     def teste_perft_test_depth_one(self):
         moves = []
