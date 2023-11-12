@@ -30,6 +30,22 @@ def is_check(board: Chess, color: int) -> bool:
     if board.state[_row][king_location[1]-1] == (attacking_color | PAWN) or board.state[_row][king_location[1]+1] == (attacking_color | PAWN):
         return True
 
+    mods = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+    for m in mods:
+        multiplier = 1
+        _row = king_location[0] + m[0]
+        _col = king_location[1] + m[1]
+        square = board.state[_row][_col]
+        while is_empty(square):
+            multiplier += 1
+            _row = king_location[0] + m[0] * multiplier
+            _col = king_location[1] + m[1] * multiplier
+            square = board.state[_row][_col]
+
+        if square == (attacking_color | ROOK) or square == (attacking_color | QUEEN):
+            return True
+
     return False
 
 

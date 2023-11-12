@@ -7,6 +7,35 @@ from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN, BOARD_ST
 
 class TestMoveGen(unittest.TestCase):
 
+    # Rook checks
+    def test_rook_checks(self):
+        b = board_from_fen("8/8/8/R3k3/8/8/8/8 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/R1r1k3/8/8/8/8 w - - 0 1")
+        self.assertTrue(not is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/R1r1k3/8/8/8/4R3 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("4R3/8/8/R1r5/8/8/8/4k3 w - - 0 1")
+        self.assertTrue(is_check(b, BLACK))
+
+        b = board_from_fen("8/8/8/R1r5/8/8/7R/4k3 w - - 0 1")
+        self.assertTrue(not is_check(b, BLACK))
+
+        b = board_from_fen("4R3/8/8/8/8/3r4/R3K2R/2r1Rr2 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
+        b = board_from_fen("4R3/8/8/8/4K3/3r4/R6R/2r1rr2 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("4R3/8/8/8/4K2r/3r4/R6R/2r2r2 w - - 0 1")
+        self.assertTrue(is_check(b, WHITE))
+
+        b = board_from_fen("4r3/8/8/4B3/r2QKP1r/3rR3/R6R/2r1rr2 w - - 0 1")
+        self.assertTrue(not is_check(b, WHITE))
+
     def test_check_sanity_test(self):
         b = board_from_fen("8/8/8/8/3K4/8/8/8 w - - 0 1")
         self.assertTrue(not is_check(b, WHITE))
