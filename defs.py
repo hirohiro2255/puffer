@@ -1,5 +1,8 @@
 from enum import Enum
 from typing import Tuple
+
+Point = Tuple[int, int]
+
 """
     Example Piece: 0b11000101
     1st bit: Color 1 = White, 0 = Black
@@ -91,7 +94,7 @@ class CastlingType(Enum):
     BLACK_QUEEN_SIDE = 8
 
 
-def algebraic_pairs_to_board_position(pair: str) -> Tuple[int, int] | None:
+def algebraic_pairs_to_board_position(pair: str) -> Point | None:
 
     if len(pair) != 2:
         return None

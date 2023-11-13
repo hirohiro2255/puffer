@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import json
 import copy
-from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3, BOARD_START, BOARD_END, is_empty, COLOR_MASK, is_king, is_white, is_black, algebraic_pairs_to_board_position, EN_PASSANT
+from defs import WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY, SENTINEL, DEFAULT_POSITION, KIWI_PETE, POSITION_3, BOARD_START, BOARD_END, is_empty, COLOR_MASK, is_king, is_white, is_black, algebraic_pairs_to_board_position, EN_PASSANT, Point
 from utils import get_piece_character, get_piece_from_fen_string_char
 
 
@@ -16,13 +16,13 @@ class Chess:
             self.side = 0 if self.fen.split()[1] == 'w' else 1
             self.state = [[0] * 12 for i in range(12)]
             self.to_move = WHITE
-            self.white_king_location = (0, 0)
-            self.black_king_location = (0, 0)
+            self.white_king_location: Point = (0, 0)
+            self.black_king_location: Point = (0, 0)
             self.white_king_side_castle = True
             self.white_queen_side_castle = True
             self.black_king_side_castle = True
             self.black_queen_side_castle = True
-            self.pawn_double_move = None
+            self.pawn_double_move: Point | None = None
 
     def swap_color(self):
         self.to_move = WHITE if self.to_move == BLACK else BLACK
