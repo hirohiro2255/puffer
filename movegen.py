@@ -287,28 +287,28 @@ def pawn_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]]):
                 moves.append((row+2, col))
 
 
-def pawn_moves_en_passant(row: int, col: int,  board: Chess, moves: List[Tuple[int, int]]):
+def pawn_moves_en_passant(row: int, col: int,  board: Chess) -> Tuple[int, int] | None:
     piece = board.state[row][col]
     if board.pawn_double_move is None:
-        return
+        return None
 
-    if is_white(piece):
-        if row == BOARD_START+3:
-            left_cap = (row-1, col-1)
-            right_cap = (row-1, col+1)
-            if left_cap == board.pawn_double_move:
-                moves.append(left_cap)
-            elif right_cap == board.pawn_double_move:
-                moves.append(right_cap)
+    if is_white(piece) and row == BOARD_START+3:
+        left_cap = (row-1, col-1)
+        right_cap = (row-1, col+1)
+        if left_cap == board.pawn_double_move:
+            return left_cap
+        elif right_cap == board.pawn_double_move:
+            return right_cap
 
-    else:
-        if row == BOARD_START+4:
-            left_cap = (row+1, col+1)
-            right_cap = (row+1, col-1)
-            if left_cap == board.pawn_double_move:
-                moves.append(left_cap)
-            elif right_cap == board.pawn_double_move:
-                moves.append(right_cap)
+    elif is_black(piece) and row == BOARD_START+4:
+        left_cap = (row+1, col+1)
+        right_cap = (row+1, col-1)
+        if left_cap == board.pawn_double_move:
+            return left_cap
+        elif right_cap == board.pawn_double_move:
+            return right_cap
+
+    return None
 
 
 KNIGHT_CORDS = [(1, 2),
@@ -345,14 +345,11 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
             if color is not None and color == board.to_move:
                 moves: List[int] = []
                 get_moves(i, j, board, moves)
+                # make all the valid moes of this piece
                 for _move in moves:
                     new_board = copy.deepcopy(board)
-                    if board.to_move == BLACK:
-                        new_board.to_move = WHITE
-                    else:
-                        new_board.to_move = BLACK
 
-                    # update king location
+                    # update king location if we are moving the king
                     if board.state[i][j] == WHITE | KING:
                         new_board.white_king_location = (_move[0], _move[1])
                     elif board.state[i][j] == BLACK | KING:
@@ -365,6 +362,13 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                     # if you make your move, and you are in check, this move is not valid
                     if is_check(new_board, board.to_move):
                         continue
+
+                    # this is a valid board state, update the variables
+                    # set the turn for the next player
+                    if board.to_move == BLACK:
+                        new_board.to_move = WHITE
+                    else:
+                        new_board.to_move = BLACK
 
                     # deal with setting castling privileges and updating king location
                     if board.state[i][j] == WHITE | KING:
@@ -397,18 +401,12 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                     generate_moves(new_board, cur_depth+1, depth, move_states)
 
                 # take care of en passant captures
-                if board.pawn_double_move is not None and is_pawn(board.state[i][j]):
-                    moves: List[int] = []
-                    pawn_moves_en_passant(
-                        i, j,  board, moves)
-
-                    for _move in moves:
+                if is_pawn(board.state[i][j]):
+                    en_passant = pawn_moves_en_passant(i, j, board)
+                    if en_passant is not None:
+                        _move = copy.deepcopy(en_passant)
                         new_board = copy.deepcopy(board)
                         new_board.pawn_double_move = None
-                        if board.to_move == BLACK:
-                            new_board.to_move = WHITE
-                        else:
-                            new_board.to_move = BLACK
 
                         new_board.state[_move[0]][_move[1]] = board.state[i][j]
                         new_board.state[i][j] = EMPTY
@@ -417,11 +415,13 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                         else:
                             new_board.state[_move[0]-1][_move[1]] = EMPTY
 
-                        # if you make your move, and you are in check, this move is not valid
-                        if is_check(new_board, board.to_move):
-                            continue
+                        # if you make your move, and you do not end up in check, this this move is valid
+                        if not is_check(new_board, board.to_move):
+                            if board.to_move == BLACK:
+                                new_board.to_move = WHITE
+                            else:
+                                new_board.to_move = BLACK
 
-                        # recursively generate the next board state
-                        move_states[cur_depth] += 1
-                        generate_moves(new_board, cur_depth +
-                                       1, depth, move_states)
+                            move_states[cur_depth] += 1
+                            generate_moves(new_board, cur_depth +
+                                           1, depth, move_states)
