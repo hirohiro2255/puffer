@@ -365,10 +365,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
 
                     # this is a valid board state, update the variables
                     # set the turn for the next player
-                    if board.to_move == BLACK:
-                        new_board.to_move = WHITE
-                    else:
-                        new_board.to_move = BLACK
+                    new_board.swap_color()
 
                     # deal with setting castling privileges and updating king location
                     if board.state[i][j] == WHITE | KING:
@@ -417,11 +414,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
 
                         # if you make your move, and you do not end up in check, this this move is valid
                         if not is_check(new_board, board.to_move):
-                            if board.to_move == BLACK:
-                                new_board.to_move = WHITE
-                            else:
-                                new_board.to_move = BLACK
-
+                            new_board.swap_color()
                             move_states[cur_depth] += 1
                             generate_moves(new_board, cur_depth +
                                            1, depth, move_states)

@@ -24,6 +24,9 @@ class Chess:
             self.black_queen_side_castle = True
             self.pawn_double_move = None
 
+    def swap_color(self):
+        self.to_move = WHITE if self.to_move == BLACK else BLACK
+
     def generate_moves(self):
         move_list = []
         for square in range(len(self.board)):
