@@ -383,6 +383,16 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                     elif board.state[i][j] == (BLACK | ROOK) and j == 9 and i == 2:
                         new_board.black_king_side_castle = False
 
+                    # if the rook is captured, take away castling privileges
+                    if _move[0] == BOARD_END-1 and _move[1] == BOARD_END-1:
+                        new_board.white_king_side_castle = False
+                    elif _move[0] == BOARD_END-1 and _move[1] == BOARD_END-1:
+                        new_board.white_queen_side_castle = False
+                    elif _move[0] == BOARD_START and _move[1] == BOARD_START:
+                        new_board.black_queen_side_castle = False
+                    elif _move[0] == BOARD_START and _move[1] == BOARD_END-1:
+                        new_board.black_king_side_castle = False
+
                     # checks if the pawn has moved two spaces, if it has it can be captured en passant, record the space behind the pawn
                     if is_pawn(board.state[i][j]) and abs(i-_move[0]) == 2:
                         if is_white(board.state[i][j]):
@@ -418,3 +428,56 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                             move_states[cur_depth] += 1
                             generate_moves(new_board, cur_depth +
                                            1, depth, move_states)
+
+    # take care of castling
+    if board.to_move == WHITE and can_castle(board, CastlingType.WHITE_KING_SIDE):
+        new_board = copy.deepcopy(board)
+        new_board.swap_color()
+        new_board.white_king_side_castle = False
+        new_board.white_queen_side_castle = False
+        new_board.white_king_location = (BOARD_END - 1, BOARD_END - 2)
+        new_board.state[BOARD_END - 1][BOARD_START + 4] = EMPTY
+        new_board.state[BOARD_END - 1][BOARD_END - 1] = EMPTY
+        new_board.state[BOARD_END - 1][BOARD_END - 2] = WHITE | KING
+        new_board.state[BOARD_END - 1][BOARD_END - 3] = WHITE | ROOK
+        move_states[cur_depth] += 1
+        generate_moves(new_board, cur_depth + 1, depth, move_states)
+
+    if board.to_move == WHITE and can_castle(board, CastlingType.WHITE_QUEEN_SIDE):
+        new_board = copy.deepcopy(board)
+        new_board.swap_color()
+        new_board.white_king_side_castle = False
+        new_board.white_queen_side_castle = False
+        new_board.white_king_location = (BOARD_END - 1, BOARD_START + 2)
+        new_board.state[BOARD_END - 1][BOARD_START + 4] = EMPTY
+        new_board.state[BOARD_END - 1][BOARD_START] = EMPTY
+        new_board.state[BOARD_END - 1][BOARD_START + 2] = WHITE | KING
+        new_board.state[BOARD_END - 1][BOARD_START + 3] = WHITE | ROOK
+        move_states[cur_depth] += 1
+        generate_moves(new_board, cur_depth + 1, depth, move_states)
+
+    if board.to_move == BLACK and can_castle(board, CastlingType.BLACK_KING_SIDE):
+        new_board = copy.deepcopy(board)
+        new_board.swap_color()
+        new_board.black_king_side_castle = False
+        new_board.black_queen_side_castle = False
+        new_board.black_king_location = (BOARD_START, BOARD_END - 2)
+        new_board.state[BOARD_START][BOARD_START + 4] = EMPTY
+        new_board.state[BOARD_START][BOARD_END - 1] = EMPTY
+        new_board.state[BOARD_START][BOARD_END - 2] = BLACK | KING
+        new_board.state[BOARD_START][BOARD_END - 3] = BLACK | ROOK
+        move_states[cur_depth] += 1
+        generate_moves(new_board, cur_depth + 1, depth, move_states)
+
+    if board.to_move == BLACK and can_castle(board, CastlingType.BLACK_QUEEN_SIDE):
+        new_board = copy.deepcopy(board)
+        new_board.swap_color()
+        new_board.black_king_side_castle = False
+        new_board.black_queen_side_castle = False
+        new_board.black_king_location = (BOARD_START, BOARD_START + 2)
+        new_board.state[BOARD_START][BOARD_START + 4] = EMPTY
+        new_board.state[BOARD_START][BOARD_START] = EMPTY
+        new_board.state[BOARD_START][BOARD_START + 2] = BLACK | KING
+        new_board.state[BOARD_START][BOARD_START + 3] = BLACK | ROOK
+        move_states[cur_depth] += 1
+        generate_moves(new_board, cur_depth + 1, depth, move_states)
