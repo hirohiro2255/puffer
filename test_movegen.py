@@ -16,12 +16,29 @@ class TestMoveGen(unittest.TestCase):
         self.assertEqual(move_states[1], 2079)
         # self.assertEqual(move_states[2], 89890) == SLOW
 
-    def test_perft_position_4(self):
+    def test_peft_position_5(self):
+        move_states = [0] * 5
+        b = board_from_fen(
+            "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8")
+        generate_moves(b, 0, 2, move_states)
+        self.assertEqual(move_states[0], 44)
+        self.assertEqual(move_states[1], 1486)
+
+    def test_perft_position_4_mirrored(self):
         move_states = [0] * 5
         b = board_from_fen(
             "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1")
-        generate_moves(b, 0, 1, move_states)
+        generate_moves(b, 0, 2, move_states)
         self.assertTrue(move_states[0], 6)
+        self.assertTrue(move_states[1], 264)
+
+    def test_perft_position_4(self):
+        move_states = [0] * 5
+        b = board_from_fen(
+            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
+        generate_moves(b, 0, 2, move_states)
+        self.assertTrue(move_states[0], 6)
+        self.assertTrue(move_states[1], 264)
 
     def test_perft_position_3(self):
         move_states = [0] * 5

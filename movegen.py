@@ -344,49 +344,48 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
             color = get_color(board.state[i][j])
             if color is not None and color == board.to_move:
                 moves: List[int] = []
+                piece = board.state[i][j]
                 get_moves(i, j, board, moves)
                 # make all the valid moes of this piece
                 for _move in moves:
                     new_board = copy.deepcopy(board)
 
                     # update king location if we are moving the king
-                    if board.state[i][j] == WHITE | KING:
+                    if piece == WHITE | KING:
                         new_board.white_king_location = (_move[0], _move[1])
-                    elif board.state[i][j] == BLACK | KING:
+                    elif piece == BLACK | KING:
                         new_board.black_king_location = (_move[0], _move[1])
 
                     # this will take care of any captures, except for en passant captures
-                    new_board.state[_move[0]][_move[1]] = board.state[i][j]
+                    new_board.state[_move[0]][_move[1]] = piece
                     new_board.state[i][j] = EMPTY
 
                     # if you make your move, and you are in check, this move is not valid
-                    if is_check(new_board, board.to_move):
+                    if is_check(new_board, color):
                         continue
 
                     # this is a valid board state, update the variables
-                    # set the turn for the next player
-                    new_board.swap_color()
 
                     # deal with setting castling privileges and updating king location
-                    if board.state[i][j] == WHITE | KING:
+                    if piece == WHITE | KING:
                         new_board.white_king_side_castle = False
                         new_board.white_queen_side_castle = False
-                    elif board.state[i][j] == BLACK | KING:
+                    elif piece == BLACK | KING:
                         new_board.black_king_side_castle = False
                         new_board.black_queen_side_castle = False
-                    elif board.state[i][j] == (WHITE | ROOK) and j == 9 and i == 9:
+                    elif i == BOARD_END-1 and j == BOARD_END-1:
                         new_board.white_king_side_castle = False
-                    elif board.state[i][j] == (WHITE | ROOK) and j == 2 and i == 9:
+                    elif i == BOARD_END-1 and j == BOARD_START:
                         new_board.white_queen_side_castle = False
-                    elif board.state[i][j] == (BLACK | ROOK) and j == 2 and i == 2:
+                    elif i == BOARD_START and j == BOARD_START:
                         new_board.black_queen_side_castle = False
-                    elif board.state[i][j] == (BLACK | ROOK) and j == 9 and i == 2:
+                    elif i == BOARD_START and j == BOARD_END-1:
                         new_board.black_king_side_castle = False
 
                     # if the rook is captured, take away castling privileges
                     if _move[0] == BOARD_END-1 and _move[1] == BOARD_END-1:
                         new_board.white_king_side_castle = False
-                    elif _move[0] == BOARD_END-1 and _move[1] == BOARD_END-1:
+                    elif _move[0] == BOARD_END-1 and _move[1] == BOARD_START:
                         new_board.white_queen_side_castle = False
                     elif _move[0] == BOARD_START and _move[1] == BOARD_START:
                         new_board.black_queen_side_castle = False
@@ -394,8 +393,8 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                         new_board.black_king_side_castle = False
 
                     # checks if the pawn has moved two spaces, if it has it can be captured en passant, record the space behind the pawn
-                    if is_pawn(board.state[i][j]) and abs(i-_move[0]) == 2:
-                        if is_white(board.state[i][j]):
+                    if is_pawn(piece) and abs(i-_move[0]) == 2:
+                        if is_white(piece):
                             new_board.pawn_double_move = (_move[0]+1, _move[1])
                         else:
                             new_board.pawn_double_move = (_move[0]-1, _move[1])
@@ -403,28 +402,50 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                         # the most recent move was not a double pawn move, unset any possibly existing pawn double move
                         new_board.pawn_double_move = None
 
-                    # recursively generate the next board state
-                    move_states[cur_depth] += 1
-                    generate_moves(new_board, cur_depth+1, depth, move_states)
+                    new_board.swap_color()
+
+                    # deal with pawn promotions
+                    if piece == (WHITE | PAWN) and _move[0] == BOARD_START:
+                        for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
+                            _new_board = copy.deepcopy(new_board)
+                            _new_board.pawn_double_move = None
+                            _new_board.state[_move[0]][_move[1]] = (
+                                WHITE | promotion_piece)
+                            move_states[cur_depth] += 1
+                            generate_moves(
+                                _new_board, cur_depth+1, depth, move_states)
+                    elif piece == (BLACK | PAWN) and _move[0] == BOARD_END-1:
+                        for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
+                            _new_board = copy.deepcopy(new_board)
+                            _new_board.state[_move[0]][_move[1]] = (
+                                BLACK | promotion_piece)
+                            move_states[cur_depth] += 1
+                            generate_moves(
+                                _new_board, cur_depth+1, depth, move_states)
+                    else:
+                        # recursively generate the next board state
+                        move_states[cur_depth] += 1
+                        generate_moves(new_board, cur_depth +
+                                       1, depth, move_states)
 
                 # take care of en passant captures
-                if is_pawn(board.state[i][j]):
+                if is_pawn(piece):
                     en_passant = pawn_moves_en_passant(i, j, board)
                     if en_passant is not None:
                         _move = copy.deepcopy(en_passant)
                         new_board = copy.deepcopy(board)
+                        new_board.swap_color()
                         new_board.pawn_double_move = None
 
-                        new_board.state[_move[0]][_move[1]] = board.state[i][j]
+                        new_board.state[_move[0]][_move[1]] = piece
                         new_board.state[i][j] = EMPTY
-                        if is_white(board.state[i][j]):
+                        if is_white(piece):
                             new_board.state[_move[0]+1][_move[1]] = EMPTY
                         else:
                             new_board.state[_move[0]-1][_move[1]] = EMPTY
 
                         # if you make your move, and you do not end up in check, this this move is valid
                         if not is_check(new_board, board.to_move):
-                            new_board.swap_color()
                             move_states[cur_depth] += 1
                             generate_moves(new_board, cur_depth +
                                            1, depth, move_states)
@@ -433,6 +454,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
     if board.to_move == WHITE and can_castle(board, CastlingType.WHITE_KING_SIDE):
         new_board = copy.deepcopy(board)
         new_board.swap_color()
+        new_board.pawn_double_move = None
         new_board.white_king_side_castle = False
         new_board.white_queen_side_castle = False
         new_board.white_king_location = (BOARD_END - 1, BOARD_END - 2)
@@ -446,6 +468,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
     if board.to_move == WHITE and can_castle(board, CastlingType.WHITE_QUEEN_SIDE):
         new_board = copy.deepcopy(board)
         new_board.swap_color()
+        new_board.pawn_double_move = None
         new_board.white_king_side_castle = False
         new_board.white_queen_side_castle = False
         new_board.white_king_location = (BOARD_END - 1, BOARD_START + 2)
@@ -459,6 +482,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
     if board.to_move == BLACK and can_castle(board, CastlingType.BLACK_KING_SIDE):
         new_board = copy.deepcopy(board)
         new_board.swap_color()
+        new_board.pawn_double_move = None
         new_board.black_king_side_castle = False
         new_board.black_queen_side_castle = False
         new_board.black_king_location = (BOARD_START, BOARD_END - 2)
@@ -472,6 +496,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
     if board.to_move == BLACK and can_castle(board, CastlingType.BLACK_QUEEN_SIDE):
         new_board = copy.deepcopy(board)
         new_board.swap_color()
+        new_board.pawn_double_move = None
         new_board.black_king_side_castle = False
         new_board.black_queen_side_castle = False
         new_board.black_king_location = (BOARD_START, BOARD_START + 2)

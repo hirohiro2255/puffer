@@ -265,9 +265,9 @@ def new_board() -> Chess:
 
 if __name__ == '__main__':
     chess = Chess('settings.json')
-# chess.play()
+    chess.play()
     # print(chess.state)
-    b = new_board()
-    board = board_from_fen()
-    board.print_board()
-    print(board.state)
+    # b = new_board()
+    # board = board_from_fen()
+    # board.print_board()
+    # print(board.state)
