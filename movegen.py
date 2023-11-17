@@ -335,9 +335,8 @@ def knight_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]])
             moves.append((_row, _col))
 
 
-def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[int]):
-    if cur_depth == depth:
-        return
+def generate_moves(board: Chess) -> List[Chess]:
+    new_moves: List[Chess] = []
 
     for i in range(BOARD_START, BOARD_END):
         for j in range(BOARD_START, BOARD_END):
@@ -411,22 +410,15 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
                             _new_board.pawn_double_move = None
                             _new_board.state[_move[0]][_move[1]] = (
                                 WHITE | promotion_piece)
-                            move_states[cur_depth] += 1
-                            generate_moves(
-                                _new_board, cur_depth+1, depth, move_states)
+                            new_moves.append(_new_board)
                     elif piece == (BLACK | PAWN) and _move[0] == BOARD_END-1:
                         for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
                             _new_board = copy.deepcopy(new_board)
                             _new_board.state[_move[0]][_move[1]] = (
                                 BLACK | promotion_piece)
-                            move_states[cur_depth] += 1
-                            generate_moves(
-                                _new_board, cur_depth+1, depth, move_states)
+                            new_moves.append(_new_board)
                     else:
-                        # recursively generate the next board state
-                        move_states[cur_depth] += 1
-                        generate_moves(new_board, cur_depth +
-                                       1, depth, move_states)
+                        new_moves.append(new_board)
 
                 # take care of en passant captures
                 if is_pawn(piece):
@@ -446,9 +438,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
 
                         # if you make your move, and you do not end up in check, this this move is valid
                         if not is_check(new_board, board.to_move):
-                            move_states[cur_depth] += 1
-                            generate_moves(new_board, cur_depth +
-                                           1, depth, move_states)
+                            new_moves.append(new_board)
 
     # take care of castling
     if board.to_move == WHITE and can_castle(board, CastlingType.WHITE_KING_SIDE):
@@ -462,8 +452,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
         new_board.state[BOARD_END - 1][BOARD_END - 1] = EMPTY
         new_board.state[BOARD_END - 1][BOARD_END - 2] = WHITE | KING
         new_board.state[BOARD_END - 1][BOARD_END - 3] = WHITE | ROOK
-        move_states[cur_depth] += 1
-        generate_moves(new_board, cur_depth + 1, depth, move_states)
+        new_moves.append(new_board)
 
     if board.to_move == WHITE and can_castle(board, CastlingType.WHITE_QUEEN_SIDE):
         new_board = copy.deepcopy(board)
@@ -476,8 +465,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
         new_board.state[BOARD_END - 1][BOARD_START] = EMPTY
         new_board.state[BOARD_END - 1][BOARD_START + 2] = WHITE | KING
         new_board.state[BOARD_END - 1][BOARD_START + 3] = WHITE | ROOK
-        move_states[cur_depth] += 1
-        generate_moves(new_board, cur_depth + 1, depth, move_states)
+        new_moves.append(new_board)
 
     if board.to_move == BLACK and can_castle(board, CastlingType.BLACK_KING_SIDE):
         new_board = copy.deepcopy(board)
@@ -490,8 +478,7 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
         new_board.state[BOARD_START][BOARD_END - 1] = EMPTY
         new_board.state[BOARD_START][BOARD_END - 2] = BLACK | KING
         new_board.state[BOARD_START][BOARD_END - 3] = BLACK | ROOK
-        move_states[cur_depth] += 1
-        generate_moves(new_board, cur_depth + 1, depth, move_states)
+        new_moves.append(new_board)
 
     if board.to_move == BLACK and can_castle(board, CastlingType.BLACK_QUEEN_SIDE):
         new_board = copy.deepcopy(board)
@@ -504,5 +491,15 @@ def generate_moves(board: Chess, cur_depth: int, depth: int, move_states: List[i
         new_board.state[BOARD_START][BOARD_START] = EMPTY
         new_board.state[BOARD_START][BOARD_START + 2] = BLACK | KING
         new_board.state[BOARD_START][BOARD_START + 3] = BLACK | ROOK
-        move_states[cur_depth] += 1
-        generate_moves(new_board, cur_depth + 1, depth, move_states)
+        new_moves.append(new_board)
+
+    return new_moves
+
+
+def generate_moves_test(board: Chess, cur_depth: int, depth: int, move_counts: List[int]):
+    if cur_depth == depth:
+        return
+    moves = generate_moves(board)
+    move_counts[cur_depth] += len(moves)
+    for mov in moves:
+        generate_moves_test(mov, cur_depth+1, depth, move_counts)
