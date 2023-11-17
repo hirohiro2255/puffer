@@ -1,5 +1,5 @@
 from app import Chess
-from defs import BOARD_START, BOARD_END, WHITE, BLACK, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, KING, QUEEN, get_color
+from defs import BOARD_START, BOARD_END, WHITE, BLACK, PIECE_MASK, PAWN, ROOK, BISHOP, KNIGHT, KING, QUEEN, get_color, is_empty
 
 PIECE_VALUES = [0, 100, 320, 330, 500, 900, 20000]
 
@@ -104,15 +104,20 @@ def get_pos_evaluation(row: int, col: int, board: Chess, color: int) -> int:
         raise ValueError("Could not recognize piece")
 
 
-def get_evaluation(board: Chess, color: int) -> int:
+def get_evaluation(board: Chess) -> int:
     evaluation = 0
     for row in range(BOARD_START, BOARD_END):
         for col in range(BOARD_START, BOARD_END):
             square = board.state[row][col]
-            if get_color(square) is None:
+            if is_empty(square):
                 continue
 
-            evaluation += PIECE_VALUES[square & PIECE_MASK]
-            evaluation += get_pos_evaluation(row, col, board, color)
+            if get_color(square) == WHITE:
+                evaluation += PIECE_VALUES[square & PIECE_MASK]
+            else:
+                evaluation += PIECE_MASK[square & PIECE_MASK] * -1
+
+            evaluation += get_pos_evaluation(row, col, board, BLACK) * -1
+            evaluation += get_pos_evaluation(row, col, board, WHITE)
 
     return evaluation
