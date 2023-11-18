@@ -1,5 +1,5 @@
 import unittest
-from evaluation import PIECE_VALUES
+from app import PIECE_VALUES
 from defs import PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
 
 

@@ -1,7 +1,7 @@
 import unittest
 
-from app import Chess, board_from_fen
-from movegen import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves, get_moves, is_check, can_castle, pawn_moves_en_passant, generate_moves, generate_moves_test
+from app import Chess, board_from_fen, generate_moves_test, generate_moves
+from app import knight_moves, pawn_moves, king_moves, rook_moves, bishop_moves, queen_moves, get_moves, is_check, can_castle, pawn_moves_en_passant
 from defs import WHITE, KNIGHT, PAWN, BLACK, KING, ROOK, BISHOP, QUEEN, BOARD_START, BOARD_END, is_white, CastlingType
 
 

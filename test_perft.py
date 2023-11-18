@@ -1,6 +1,5 @@
 import unittest
-from app import board_from_fen
-from movegen import generate_moves_test
+from app import generate_moves_test, board_from_fen
 
 
 class TestPerft(unittest.TestCase):
@@ -61,3 +60,6 @@ class TestPerft(unittest.TestCase):
         self.assertEqual(move_states[1], 400)
         self.assertEqual(move_states[2], 8902)
         # self.assertEqual(move_states[3], 197281)
+
+if __name__ == "__main__":
+    unittest.main()
