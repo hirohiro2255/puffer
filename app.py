@@ -25,6 +25,12 @@ class Chess:
             self.black_king_side_castle = True
             self.black_queen_side_castle = True
             self.pawn_double_move: Point | None = None
+            # The number of the full moves. It starts at 1, and is incremented after Black's move
+            self.full_move_clock = 1
+            # The number of half moves since the last capture or pawn advance, used for the fifty-move rule
+            self.half_move_clock = 0
+            self.white_total_piece_value = 0
+            self.black_total_piece_value = 0
 
     def swap_color(self):
         self.to_move = WHITE if self.to_move == BLACK else BLACK
@@ -181,8 +187,18 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
     to_move = WHITE if fen_config[1] == 'w' else BLACK
     castling_privileges = fen_config[2]
     en_passant = fen_config[3]
-    halfmove_clock = fen_config[4]
-    fullmove_clock = fen_config[5]
+
+    half_move_clock = 0
+    try:
+        half_move_clock = int(fen_config[4])
+    except:
+        raise ValueError("Could not parse fen string: Invalid half move value")
+
+    full_move_clock = 1
+    try:
+        full_move_clock = int(fen_config[5])
+    except:
+        raise ValueError("Could not parse fen string: Invalid full move value")
 
     white_king_location = (0, 0)
     black_king_location = (0, 0)
@@ -194,6 +210,9 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
 
     row = BOARD_START
     col = BOARD_START
+    white_piece_value = 0
+    black_piece_value = 0
+
     for fen_row in fen_rows:
         for square in fen_row:
             if square.isdigit():
@@ -213,6 +232,11 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
                         'Could not parse fen string: Invalid character found')
                 else:
                     b[row][col] = piece
+
+                if is_white(b[row][col]):
+                    white_piece_value += PIECE_VALUES[b[row][col] & PIECE_MASK]
+                else:
+                    black_piece_value += PIECE_VALUES[b[row][col] & PIECE_MASK]
 
                 if is_king(b[row][col]):
                     if is_white(b[row][col]):
@@ -246,6 +270,10 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
     board.black_king_side_castle = "k" in castling_privileges
     board.black_queen_side_castle = "q" in castling_privileges
     board.pawn_double_move = en_passant_pos
+    board.half_move_clock = half_move_clock
+    board.full_move_clock = full_move_clock
+    board.black_total_piece_value = black_piece_value
+    board.white_total_piece_value = white_piece_value
     return board
 
 
@@ -633,12 +661,24 @@ def generate_moves(board: Chess) -> List[Chess]:
                 # make all the valid moes of this piece
                 for _move in moves:
                     new_board = copy.deepcopy(board)
+                    new_board.swap_color()
+                    if color == BLACK:
+                        new_board.full_move_clock += 1
 
                     # update king location if we are moving the king
                     if piece == WHITE | KING:
                         new_board.white_king_location = (_move[0], _move[1])
                     elif piece == BLACK | KING:
                         new_board.black_king_location = (_move[0], _move[1])
+
+                    target_square = new_board.state[_move[0]][_move[1]]
+                    if not is_empty(target_square):
+                        piece_value = PIECE_VALUES[target_square & PIECE_MASK]
+
+                        if board.to_move == WHITE:
+                            new_board.black_total_piece_value -= piece_value
+                        else:
+                            new_board.white_total_piece_value -= piece_value
 
                     # this will take care of any captures, except for en passant captures
                     new_board.state[_move[0]][_move[1]] = piece
@@ -686,21 +726,22 @@ def generate_moves(board: Chess) -> List[Chess]:
                         # the most recent move was not a double pawn move, unset any possibly existing pawn double move
                         new_board.pawn_double_move = None
 
-                    new_board.swap_color()
 
                     # deal with pawn promotions
-                    if piece == (WHITE | PAWN) and _move[0] == BOARD_START:
+                    if _move[0] == BOARD_START and piece == (WHITE | PAWN):
                         for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
                             _new_board = copy.deepcopy(new_board)
                             _new_board.pawn_double_move = None
                             _new_board.state[_move[0]][_move[1]] = (
                                 WHITE | promotion_piece)
+                            _new_board.white_total_piece_value += (PIECE_VALUES[promotion_piece] - PIECE_VALUES[PAWN])
                             new_moves.append(_new_board)
                     elif piece == (BLACK | PAWN) and _move[0] == BOARD_END-1:
                         for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
                             _new_board = copy.deepcopy(new_board)
                             _new_board.state[_move[0]][_move[1]] = (
                                 BLACK | promotion_piece)
+                            _new_board.black_total_piece_value += (PIECE_VALUES[promotion_piece] - PIECE_VALUES[PAWN])
                             new_moves.append(_new_board)
                     else:
                         new_moves.append(new_board)
@@ -718,8 +759,10 @@ def generate_moves(board: Chess) -> List[Chess]:
                         new_board.state[i][j] = EMPTY
                         if is_white(piece):
                             new_board.state[_move[0]+1][_move[1]] = EMPTY
+                            new_board.black_total_piece_value -= PIECE_VALUES[PAWN]
                         else:
                             new_board.state[_move[0]-1][_move[1]] = EMPTY
+                            new_board.white_total_piece_value -= PIECE_VALUES[PAWN]
 
                         # if you make your move, and you do not end up in check, this this move is valid
                         if not is_check(new_board, board.to_move):
@@ -876,7 +919,7 @@ def get_pos_evaluation(row: int, col: int, board: Chess, color: int) -> int:
     _row = row - BOARD_START
     _col = col - BOARD_START
     if color == BLACK:
-        _row = BOARD_END - BOARD_START - 1 - _row
+        _row = 7 - _row
 
     if piece == PAWN:
         return PAWN_WEIGHTS[_row][_col]
@@ -887,7 +930,10 @@ def get_pos_evaluation(row: int, col: int, board: Chess, color: int) -> int:
     elif piece == KNIGHT:
         return KNIGHT_WEIGHTS[_row][_col]
     elif piece == KING:
-        return KING_WEIGHTS[_row][_col]
+        if board.full_move_clock > 30:
+            return KING_LATE_GAME[_row][_col]
+        else:
+            return KING_WEIGHTS[_row][_col]
     elif piece == QUEEN:
         return QUEEN_WEIGHTS[_row][_col]
     else:
@@ -895,7 +941,8 @@ def get_pos_evaluation(row: int, col: int, board: Chess, color: int) -> int:
 
 
 def get_evaluation(board: Chess) -> int:
-    evaluation = 0
+    evaluation = board.white_total_piece_value
+    evaluation -= board.black_total_piece_value
     for row in range(BOARD_START, BOARD_END):
         for col in range(BOARD_START, BOARD_END):
             square = board.state[row][col]
@@ -903,12 +950,12 @@ def get_evaluation(board: Chess) -> int:
                 continue
 
             if get_color(square) == WHITE:
-                evaluation += PIECE_VALUES[square & PIECE_MASK]
+                evaluation += get_pos_evaluation(row, col, board, WHITE)
             else:
-                evaluation -= PIECE_VALUES[square & PIECE_MASK]
+                evaluation -= get_pos_evaluation(row, col, board, BLACK)
 
-            evaluation -= get_pos_evaluation(row, col, board, BLACK) 
-            evaluation += get_pos_evaluation(row, col, board, WHITE)
+             
+            
 
     return evaluation
 
@@ -949,9 +996,9 @@ if __name__ == '__main__':
     # chess = Chess('settings.json')
     board = board_from_fen(DEFAULT_POSITION)
 
-    while True:
-        best_move = None
-        next_board = board
+    best_move = None
+    next_board = board
+    while board.full_move_clock < 200:
         if board.to_move == WHITE:
             best_move = -sys.maxsize - 1
         else:
@@ -962,7 +1009,8 @@ if __name__ == '__main__':
             break
 
         for mov in moves:
-            res = alpha_beta_search(mov, 2, -sys.maxsize-1,sys.maxsize,board.to_move)
+            maximizer = BLACK if board.to_move == WHITE else WHITE
+            res = alpha_beta_search(mov, 2, -sys.maxsize-1,sys.maxsize, maximizer)
             if board.to_move == WHITE and best_move < res:
                 best_move = res
                 next_board = mov

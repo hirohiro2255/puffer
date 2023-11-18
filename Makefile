@@ -6,3 +6,6 @@ test: test_*.py
 
 perft: test_perft.py
 	python test_perft.py
+
+profiler: profiler.py
+	python profiler.py
