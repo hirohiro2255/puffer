@@ -36,22 +36,7 @@ class Chess:
         self.to_move = WHITE if self.to_move == BLACK else BLACK
 
     def do_move(self, move: str):
-        move_str = move.strip()
-        if len(move_str) < 4:
-            raise ValueError("Invalid move string")
-
-        from_cords = algebraic_pairs_to_board_position(move_str[:2])
-        to_cords = algebraic_pairs_to_board_position(move_str[2:])
-        print(
-            f"piece on from square: {self.state[from_cords[0]][from_cords[1]]}")
-        print(f"piece on to square: {self.state[to_cords[0]][to_cords[1]]}")
-        from_piece_type = self.state[from_cords[0]][from_cords[1]]
-        to_piece_type = self.state[to_cords[0]][to_cords[1]]
-
-        if is_empty(from_piece_type):
-            print("no piece to move on square you picked")
-        elif is_outside_board(to_piece_type):
-            print("you are about to move a piece to outside the board")
+        pass
 
     def generate_moves(self):
         move_list = []
@@ -960,12 +945,14 @@ def alpha_beta_search(board: Chess, depth: int, alpha: int, beta: int, maximizin
     if len(moves) == 0:
         if maximizing_player == WHITE:
             if is_check(board, WHITE):
+                # return (None, -99999999 - depth)  # checkmate
                 return (None, -sys.maxsize)
         else:
             if is_check(board, BLACK):
+                # return (None, 99999999 + depth)  # checkmate
                 return (None, sys.maxsize)
 
-        return (None, 0)
+        return (None, 0)  # stalemate
 
     best_move = None
     if maximizing_player == WHITE:
@@ -1007,11 +994,44 @@ def play_game_against_self(b: Chess, depth: int, max_moves: int):
         board.print_board()
 
 
+def play_game_uci(board: Chess):
+    buffer = ""
+    while True:
+        move = input("ENGINE<< ")
+        with open("log.txt", "a", encoding="utf-8") as f:
+            f.write(move + "\n")
+
+
 if __name__ == '__main__':
     # chess = Chess('settings.json')
     board = board_from_fen(DEFAULT_POSITION)
+    play_game_uci(board)
+    """
+    while True:
+        board.print_board()
+        move = input("your move:")
+        board.do_move(move.strip())
+        move_str = move.strip()
+        if len(move_str) < 4:
+            raise ValueError("Invalid move string")
 
-    play_game_against_self(board, 5, 100)
+        from_cords = algebraic_pairs_to_board_position(move_str[:2])
+        to_cords = algebraic_pairs_to_board_position(move_str[2:])
+        from_piece_type = board.state[from_cords[0]][from_cords[1]]
+
+        board.state[to_cords[0]][to_cords[1]] = from_piece_type
+        board.state[from_cords[0]][from_cords[1]] = EMPTY
+
+        board.swap_color()
+        res = alpha_beta_search(
+            board, depth, -sys.maxsize, sys.maxsize, board.to_move)
+        if res[0] is not None:
+            board = copy.deepcopy(res[0])
+        else:
+            break
+    """
+
+    # play_game_against_self(board, 1, 100)
 
     """
     * Get from-square and to-square in Point type.
