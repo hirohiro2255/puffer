@@ -42,7 +42,8 @@ class Chess:
 
         from_cords = algebraic_pairs_to_board_position(move_str[:2])
         to_cords = algebraic_pairs_to_board_position(move_str[2:])
-        print(f"piece on from square: {self.state[from_cords[0]][from_cords[1]]}")
+        print(
+            f"piece on from square: {self.state[from_cords[0]][from_cords[1]]}")
         print(f"piece on to square: {self.state[to_cords[0]][to_cords[1]]}")
         from_piece_type = self.state[from_cords[0]][from_cords[1]]
         to_piece_type = self.state[to_cords[0]][to_cords[1]]
@@ -51,10 +52,6 @@ class Chess:
             print("no piece to move on square you picked")
         elif is_outside_board(to_piece_type):
             print("you are about to move a piece to outside the board")
-
-
-
-
 
     def generate_moves(self):
         move_list = []
@@ -312,8 +309,6 @@ def new_board() -> Chess:
     chess.state = copy.deepcopy(b)
     chess.to_move = WHITE
     return chess
-
-
 
 
 """
@@ -726,7 +721,6 @@ def generate_moves(board: Chess) -> List[Chess]:
                         # the most recent move was not a double pawn move, unset any possibly existing pawn double move
                         new_board.pawn_double_move = None
 
-
                     # deal with pawn promotions
                     if _move[0] == BOARD_START and piece == (WHITE | PAWN):
                         for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
@@ -734,14 +728,16 @@ def generate_moves(board: Chess) -> List[Chess]:
                             _new_board.pawn_double_move = None
                             _new_board.state[_move[0]][_move[1]] = (
                                 WHITE | promotion_piece)
-                            _new_board.white_total_piece_value += (PIECE_VALUES[promotion_piece] - PIECE_VALUES[PAWN])
+                            _new_board.white_total_piece_value += (
+                                PIECE_VALUES[promotion_piece] - PIECE_VALUES[PAWN])
                             new_moves.append(_new_board)
                     elif piece == (BLACK | PAWN) and _move[0] == BOARD_END-1:
                         for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
                             _new_board = copy.deepcopy(new_board)
                             _new_board.state[_move[0]][_move[1]] = (
                                 BLACK | promotion_piece)
-                            _new_board.black_total_piece_value += (PIECE_VALUES[promotion_piece] - PIECE_VALUES[PAWN])
+                            _new_board.black_total_piece_value += (
+                                PIECE_VALUES[promotion_piece] - PIECE_VALUES[PAWN])
                             new_moves.append(_new_board)
                     else:
                         new_moves.append(new_board)
@@ -831,7 +827,6 @@ def generate_moves_test(board: Chess, cur_depth: int, depth: int, move_counts: L
     move_counts[cur_depth] += len(moves)
     for mov in moves:
         generate_moves_test(mov, cur_depth+1, depth, move_counts)
-
 
 
 PIECE_VALUES = [0, 100, 320, 330, 500, 900, 20000]
@@ -954,78 +949,74 @@ def get_evaluation(board: Chess) -> int:
             else:
                 evaluation -= get_pos_evaluation(row, col, board, BLACK)
 
-             
-            
-
     return evaluation
 
 
-
-
-
-def alpha_beta_search(board: Chess, depth: int, alpha: int, beta: int, maximizing_player: int) -> int:
+def alpha_beta_search(board: Chess, depth: int, alpha: int, beta: int, maximizing_player: int) -> (Chess | None, int):
     if depth == 0:
-        return get_evaluation(board)
+        return (None, get_evaluation(board))
 
-    states = generate_moves(board)
-    if len(states) == 0:
-        return get_evaluation(board)
+    moves = generate_moves(board)
+    if len(moves) == 0:
+        if maximizing_player == WHITE:
+            if is_check(board, WHITE):
+                return (None, -sys.maxsize)
+        else:
+            if is_check(board, BLACK):
+                return (None, sys.maxsize)
 
+        return (None, 0)
+
+    best_move = None
     if maximizing_player == WHITE:
-        val = -sys.maxsize - 1
-        for board in states:
-            val = max([val, alpha_beta_search(board,depth-1,alpha,beta,BLACK)])
-            if val >= beta:
+        best_val = -sys.maxsize
+        for board in moves:
+            evaluation = alpha_beta_search(board, depth-1, alpha, beta, BLACK)
+            if evaluation[1] > best_val:
+                best_val = evaluation[1]
+                best_move = board
+            alpha = max([alpha, evaluation[1]])
+            if beta <= alpha:
                 break
-            alpha = max([alpha, val])
-
-        return val
+        return (best_move, best_val)
     else:
-        val = sys.maxsize
-        for board in states:
-            val = min([val, alpha_beta_search(board, depth-1, alpha, beta, WHITE)])
-            if val <= alpha:
+        best_val = sys.maxsize
+        for board in moves:
+            evaluation = alpha_beta_search(board, depth-1, alpha, beta, WHITE)
+            if evaluation[1] < best_val:
+                best_val = evaluation[1]
+                best_move = board
+
+            beta = min([beta, evaluation[1]])
+            if beta <= alpha:
                 break
-            beta = min([beta, val])
-        return val
+        return (best_move, best_val)
 
 
+def play_game_against_self(b: Chess, depth: int, max_moves: int):
+    board = copy.deepcopy(b)
+    board.print_board()
+    while board.full_move_clock < max_moves:
+        res = alpha_beta_search(
+            board, depth, -sys.maxsize, sys.maxsize, board.to_move)
+        if res[0] is not None:
+            board = copy.deepcopy(res[0])
+        else:
+            break
+
+        board.print_board()
 
 
 if __name__ == '__main__':
     # chess = Chess('settings.json')
     board = board_from_fen(DEFAULT_POSITION)
 
-    best_move = None
-    next_board = board
-    while board.full_move_clock < 200:
-        if board.to_move == WHITE:
-            best_move = -sys.maxsize - 1
-        else:
-            best_move = sys.maxsize
-
-        moves = generate_moves(board)
-        if len(moves) == 0:
-            break
-
-        for mov in moves:
-            maximizer = BLACK if board.to_move == WHITE else WHITE
-            res = alpha_beta_search(mov, 2, -sys.maxsize-1,sys.maxsize, maximizer)
-            if board.to_move == WHITE and best_move < res:
-                best_move = res
-                next_board = mov
-            elif board.to_move == BLACK and res < best_move:
-                best_move = res
-                next_board = mov
-        next_board.print_board()
-        board = next_board
-
-    board.print_board()
+    play_game_against_self(board, 5, 100)
 
     """
     * Get from-square and to-square in Point type.
     * Check if to-square is empty or not.
-    * if empty just move to destination 
+    * if empty just move to destination
     * else if an opponent piece is where your piece is going , then get it
     * else if your own piece is where your  piece is  going then not allowed to move
     * update your state property
