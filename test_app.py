@@ -1,9 +1,16 @@
 import unittest
 from app import Chess, board_from_fen
-from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, is_pawn, is_knight, is_bishop, is_rook, is_queen, is_king, is_empty, is_outside_board, EMPTY, SENTINEL, has_moved, MOVED_MASK, pawn_did_double_move, EN_PASSANT, algebraic_pairs_to_board_position, BOARD_START, BOARD_END
+from defs import is_white, is_black, WHITE, BLACK, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, is_pawn, is_knight, is_bishop, is_rook, is_queen, is_king, is_empty, is_outside_board, EMPTY, SENTINEL, has_moved, MOVED_MASK, pawn_did_double_move, EN_PASSANT, algebraic_pairs_to_board_position, BOARD_START, BOARD_END, board_position_to_algebraic_pair
 
 
 class TestChessClass(unittest.TestCase):
+
+    def test_points_to_long_algebraic_position(self):
+        res = board_position_to_algebraic_pair((2,2))
+        self.assertEqual(res, "a8")
+
+        res = board_position_to_algebraic_pair((4,6))
+        self.assertEqual(res, "e6")
 
     def test_correct_en_passant_privileges(self):
         b = board_from_fen(

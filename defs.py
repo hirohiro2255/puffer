@@ -135,3 +135,46 @@ def get_color(square: int) -> int | None:
     if square & COLOR_MASK == WHITE:
         return WHITE
     return BLACK
+
+def board_position_to_algebraic_pair(pair: Point) -> str:
+    row = None
+    if pair[0] == 2:
+        row = "8"
+    elif pair[0] == 3:
+        row = "7"
+    elif pair[0] == 4:
+        row = "6"
+    elif pair[0] == 5:
+        row = "5"
+    elif pair[0] == 6:
+        row = "4"
+    elif pair[0] == 7:
+        row = "3"
+    elif pair[0] == 8:
+        row = "2"
+    elif pair[0] == 9:
+        row = "1"
+    else:
+        row = "1"
+
+    col = None
+    if pair[1] == 2:
+        col = "a"
+    elif pair[1] == 3:
+        col = "b"
+    elif pair[1] == 4:
+        col = "c"
+    elif pair[1] == 5:
+        col = "d"
+    elif pair[1] == 6:
+        col = "e"
+    elif pair[1] == 7:
+        col = "f"
+    elif pair[1] == 8:
+        col = "g"
+    elif pair[1] == 9:
+        col = "h"
+    else:
+        col = "h"
+
+    return f"{col}{row}"

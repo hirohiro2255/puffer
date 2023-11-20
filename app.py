@@ -31,6 +31,7 @@ class Chess:
             self.half_move_clock = 0
             self.white_total_piece_value = 0
             self.black_total_piece_value = 0
+            self.last_move : (Point, Point) | None = None
 
     def swap_color(self):
         self.to_move = WHITE if self.to_move == BLACK else BLACK
@@ -256,6 +257,7 @@ def board_from_fen(fen: str = DEFAULT_POSITION) -> Chess:
     board.full_move_clock = full_move_clock
     board.black_total_piece_value = black_piece_value
     board.white_total_piece_value = white_piece_value
+    board.last_move = None
     return board
 
 
