@@ -994,18 +994,58 @@ def play_game_against_self(b: Chess, depth: int, max_moves: int):
         board.print_board()
 
 
-def play_game_uci(board: Chess):
-    buffer = ""
-    while True:
-        move = input("ENGINE<< ")
-        with open("log.txt", "a", encoding="utf-8") as f:
-            f.write(move + "\n")
+def play_game_uci():
+    board = board_from_fen(DEFAULT_POSITION)
+    buffer = read_from_gui()
 
+    if buffer != "uci":
+        log_error(f"Expected uci protocol but got {buffer}\n")
+        return
+
+    send_to_gui("id name ChessEngine\n")
+    send_to_gui("id author Hirokazu Hirono\n")
+    send_to_gui("uciok\n")
+
+    buffer = read_from_gui()
+    if buffer != "isready":
+        log_error(f"Expected isready protocol but got {buffer}")
+        return
+
+    send_to_gui("readyok\n")
+
+    while True:
+        buffer = read_from_gui()
+        if buffer == "quit":
+            break
+        elif buffer == "ucinewgame":
+            print("ucinewgame")
+        elif buffer == "position startpos":
+            board = board_from_fen(DEFAULT_POSITION)
+        elif buffer == "isready":
+            send_to_gui("readyok\n")
+        else:
+            log_error(f"Unrecognized command {buffer}\n")
+
+
+def send_to_gui(message: str):
+    print(f"{message}", end="")
+    with open("log.txt", "a", encoding="utf-8") as f:
+        f.write(f"ENGINE >> {message}")
+
+def log_error(message: str):
+    with open("log.txt", "a", encoding="utf-8") as f:
+        f.write(f"<ERROR> {message}")
+
+def read_from_gui() -> str:
+    buffer = input("ENGINE << ")
+    with open("log.txt", "a", encoding="utf-8") as f:
+        f.write(f"ENGINE << {buffer}")
+
+    return buffer.strip()
 
 if __name__ == '__main__':
     # chess = Chess('settings.json')
-    board = board_from_fen(DEFAULT_POSITION)
-    play_game_uci(board)
+    play_game_uci()
     """
     while True:
         board.print_board()
