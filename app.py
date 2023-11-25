@@ -31,7 +31,7 @@ class Chess:
             self.half_move_clock = 0
             self.white_total_piece_value = 0
             self.black_total_piece_value = 0
-            self.last_move : (Point, Point) | None = None
+            self.last_move: (Point, Point) | None = None
 
     def swap_color(self):
         self.to_move = WHITE if self.to_move == BLACK else BLACK
@@ -314,75 +314,91 @@ def new_board() -> Chess:
 """
 
 
+def can_castle_white_king_side(board: Chess) -> bool:
+    if not board.white_king_side_castle:
+        return False
+
+    # check that squares required for castling are empty
+    if not is_empty(board.state[BOARD_END-1][BOARD_END-3]) or not is_empty(board.state[BOARD_END-1][BOARD_END-2]):
+        return False
+
+    # check that the king currently is'nt in check
+    if is_check(board, WHITE):
+        return False
+
+    # check that the square required for castling are not threatened
+    if is_check_cords(board, WHITE, (BOARD_END-1, BOARD_END-3)) or is_check_cords(board, WHITE, (BOARD_END-1, BOARD_END-2)):
+        return False
+
+    return True
+
+
+def can_castle_white_queen_side(board: Chess) -> bool:
+    if not board.white_queen_side_castle:
+        return False
+
+    # check that squares required for castling are empty
+    if not is_empty(board.state[BOARD_END-1][BOARD_START+1]) or not is_empty(board.state[BOARD_END-1][BOARD_START+2]) or not is_empty(board.state[BOARD_END-1][BOARD_START+3]):
+        return False
+
+    # check that the king currently is'nt in check
+    if is_check(board, WHITE):
+        return False
+
+    # check that the square required for castling are not threatened
+    if is_check_cords(board, WHITE, (BOARD_END-1, BOARD_START+3)) or is_check_cords(board, WHITE, (BOARD_END-1, BOARD_START+2)):
+        return False
+
+    return True
+
+
+def can_castle_black_king_side(board: Chess) -> bool:
+    if not board.black_king_side_castle:
+        return False
+
+    # check that squares required for castling are empty
+    if not is_empty(board.state[BOARD_START][BOARD_END-3]) or not is_empty(board.state[BOARD_START][BOARD_END-2]):
+        return False
+
+    if is_check(board, BLACK):
+        return False
+
+    # check that the square required for castling are not threatened
+    if is_check_cords(board, BLACK, (BOARD_START, BOARD_END-3)) or is_check_cords(board, BLACK, (BOARD_START, BOARD_END-2)):
+        return False
+
+    return True
+
+
+def can_castle_black_queen_side(board: Chess) -> bool:
+    if not board.black_queen_side_castle:
+        return False
+
+    # check that squares required for castling are empty
+    if not is_empty(board.state[BOARD_START][BOARD_START+1]) or not is_empty(board.state[BOARD_START][BOARD_START+2]) or not is_empty(board.state[BOARD_START][BOARD_START+3]):
+        return False
+
+    if is_check(board, BLACK):
+        return False
+
+    if is_check_cords(board, BLACK, (BOARD_START, BOARD_START+2)) or is_check_cords(board, BLACK, (BOARD_START, BOARD_START+3)):
+        return False
+
+    return True
+
+
 def can_castle(board: Chess, castling_type: CastlingType) -> bool:
     if castling_type == CastlingType.WHITE_KING_SIDE:
-        if not board.white_king_side_castle:
-            return False
-
-        # check that squares required for castling are empty
-        if not is_empty(board.state[9][7]) or not is_empty(board.state[9][8]):
-            return False
-
-        # check that the king currently is'nt in check
-        if is_check(board, WHITE):
-            return False
-
-        # check that the square required for castling are not threatened
-        if is_check_cords(board, WHITE, (9, 7)) or is_check_cords(board, WHITE, (9, 8)):
-            return False
-
-        return True
+        return can_castle_white_king_side(board)
 
     if castling_type == CastlingType.WHITE_QUEEN_SIDE:
-        if not board.white_queen_side_castle:
-            return False
-
-        # check that squares required for castling are empty
-        if not is_empty(board.state[9][3]) or not is_empty(board.state[9][4]) or not is_empty(board.state[9][5]):
-            return False
-
-        # check that the king currently is'nt in check
-        if is_check(board, WHITE):
-            return False
-
-        # check that the square required for castling are not threatened
-        if is_check_cords(board, WHITE, (9, 5)) or is_check_cords(board, WHITE, (9, 4)):
-            return False
-
-        return True
+        return can_castle_white_queen_side(board)
 
     if castling_type == CastlingType.BLACK_KING_SIDE:
-        if not board.black_king_side_castle:
-            return False
-
-        # check that squares required for castling are empty
-        if not is_empty(board.state[2][7]) or not is_empty(board.state[2][8]):
-            return False
-
-        if is_check(board, BLACK):
-            return False
-
-        # check that the square required for castling are not threatened
-        if is_check_cords(board, BLACK, (2, 7)) or is_check_cords(board, BLACK, (2, 8)):
-            return False
-
-        return True
+        return can_castle_black_king_side(board)
 
     if castling_type == CastlingType.BLACK_QUEEN_SIDE:
-        if not board.black_queen_side_castle:
-            return False
-
-        # check that squares required for castling are empty
-        if not is_empty(board.state[2][3]) or not is_empty(board.state[2][4]) or not is_empty(board.state[2][5]):
-            return False
-
-        if is_check(board, BLACK):
-            return False
-
-        if is_check_cords(board, BLACK, (2, 4)) or is_check_cords(board, BLACK, (2, 5)):
-            return False
-
-        return True
+        return can_castle_black_queen_side(board)
 
     raise ValueError("Should'nt be here")
 
@@ -631,8 +647,21 @@ def knight_moves(row: int, col: int, board: Chess, moves: List[Tuple[int, int]])
 
 
 def generate_moves(board: Chess) -> List[Chess]:
-    new_moves: List[Chess] = []
+    new_moves = []
 
+    for i in range(BOARD_START, BOARD_END):
+        for j in range(BOARD_START, BOARD_END):
+            color = get_color(board.state[i][j])
+            if color is not None and color == board.to_move:
+                generate_moves_for_piece(board, (i,j), new_moves)
+
+    generate_castling_moves(board, new_moves) 
+    return new_moves
+
+
+
+
+def generate_move_for_piece(board: Chess, square_cords: Point, new_moves: List[Chess]):
     for i in range(BOARD_START, BOARD_END):
         for j in range(BOARD_START, BOARD_END):
             color = get_color(board.state[i][j])
@@ -1034,9 +1063,11 @@ def send_to_gui(message: str):
     with open("log.txt", "a", encoding="utf-8") as f:
         f.write(f"ENGINE >> {message}")
 
+
 def log_error(message: str):
     with open("log.txt", "a", encoding="utf-8") as f:
         f.write(f"<ERROR> {message}")
+
 
 def read_from_gui() -> str:
     buffer = input("ENGINE << ")
@@ -1044,6 +1075,7 @@ def read_from_gui() -> str:
         f.write(f"ENGINE << {buffer}")
 
     return buffer.strip()
+
 
 if __name__ == '__main__':
     # chess = Chess('settings.json')
