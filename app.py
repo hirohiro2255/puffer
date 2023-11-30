@@ -653,7 +653,7 @@ def generate_moves(board: Chess) -> List[Chess]:
         for j in range(BOARD_START, BOARD_END):
             color = get_color(board.state[i][j])
             if color is not None and color == board.to_move:
-                generate_moves_for_piece(board, (i,j), new_moves)
+                generate_move_for_piece(board, (i,j), new_moves)
 
     generate_castling_moves(board, new_moves) 
     return new_moves
@@ -662,124 +662,110 @@ def generate_moves(board: Chess) -> List[Chess]:
 
 
 def generate_move_for_piece(board: Chess, square_cords: Point, new_moves: List[Chess]):
-    for i in range(BOARD_START, BOARD_END):
-        for j in range(BOARD_START, BOARD_END):
-            color = get_color(board.state[i][j])
-            if color is not None and color == board.to_move:
-                moves: List[int] = []
-                piece = board.state[i][j]
-                get_moves(i, j, board, moves)
-                # make all the valid moes of this piece
-                for _move in moves:
-                    new_board = copy.deepcopy(board)
-                    new_board.swap_color()
-                    if color == BLACK:
-                        new_board.full_move_clock += 1
+    moves: List[int] = []
+    piece = board.state[square_cords[0]][square_cords[1]]
+    color = get_color(piece)
+    get_moves(square_cords[0], square_cords[1], board, moves)
+    # make all the valid moes of this piece
+    for _move in moves:
+        new_board = copy.deepcopy(board)
+        new_board.swap_color()
+        if color == BLACK:
+            new_board.full_move_clock += 1
 
-                    # update king location if we are moving the king
-                    if piece == WHITE | KING:
-                        new_board.white_king_location = (_move[0], _move[1])
-                    elif piece == BLACK | KING:
-                        new_board.black_king_location = (_move[0], _move[1])
+        # update king location if we are moving the king
+        if piece == WHITE | KING:
+            new_board.white_king_location = (_move[0], _move[1])
+        elif piece == BLACK | KING:
+            new_board.black_king_location = (_move[0], _move[1])
 
-                    target_square = new_board.state[_move[0]][_move[1]]
-                    if not is_empty(target_square):
-                        piece_value = PIECE_VALUES[target_square & PIECE_MASK]
+        target_square = new_board.state[_move[0]][_move[1]]
+        if not is_empty(target_square):
+            piece_value = PIECE_VALUES[target_square & PIECE_MASK]
 
-                        if board.to_move == WHITE:
-                            new_board.black_total_piece_value -= piece_value
-                        else:
-                            new_board.white_total_piece_value -= piece_value
+            if board.to_move == WHITE:
+                new_board.black_total_piece_value -= piece_value
+            else:
+                new_board.white_total_piece_value -= piece_value
 
-                    # this will take care of any captures, except for en passant captures
-                    new_board.state[_move[0]][_move[1]] = piece
-                    new_board.state[i][j] = EMPTY
+        # move the piece, this will take care of any captures, except for en passant captures
+        new_board.state[_move[0]][_move[1]] = piece
+        new_board.state[square_cords[0]][square_cords[1]] = EMPTY
 
-                    # if you make your move, and you are in check, this move is not valid
-                    if is_check(new_board, color):
-                        continue
+        # if you make your move, and you are in check, this move is not valid
+        if is_check(new_board, color):
+            continue
 
-                    # this is a valid board state, update the variables
+        # this is a valid board state, update the variables
 
-                    # deal with setting castling privileges and updating king location
-                    if piece == WHITE | KING:
-                        new_board.white_king_side_castle = False
-                        new_board.white_queen_side_castle = False
-                    elif piece == BLACK | KING:
-                        new_board.black_king_side_castle = False
-                        new_board.black_queen_side_castle = False
-                    elif i == BOARD_END-1 and j == BOARD_END-1:
-                        new_board.white_king_side_castle = False
-                    elif i == BOARD_END-1 and j == BOARD_START:
-                        new_board.white_queen_side_castle = False
-                    elif i == BOARD_START and j == BOARD_START:
-                        new_board.black_queen_side_castle = False
-                    elif i == BOARD_START and j == BOARD_END-1:
-                        new_board.black_king_side_castle = False
+        # deal with setting castling privileges and updating king location
+        if piece == WHITE | KING:
+            new_board.white_king_side_castle = False
+            new_board.white_queen_side_castle = False
+        elif piece == BLACK | KING:
+            new_board.black_king_side_castle = False
+            new_board.black_queen_side_castle = False
+        elif square_cords[0] == BOARD_END-1 and square_cords[1] == BOARD_END-1:
+            new_board.white_king_side_castle = False
+        elif square_cords[0] == BOARD_END-1 and square_cords[1] == BOARD_START:
+            new_board.white_queen_side_castle = False
+        elif square_cords[0] == BOARD_START and square_cords[1] == BOARD_START:
+            new_board.black_queen_side_castle = False
+        elif square_cords[0] == BOARD_START and square_cords[1] == BOARD_END-1:
+            new_board.black_king_side_castle = False
 
-                    # if the rook is captured, take away castling privileges
-                    if _move[0] == BOARD_END-1 and _move[1] == BOARD_END-1:
-                        new_board.white_king_side_castle = False
-                    elif _move[0] == BOARD_END-1 and _move[1] == BOARD_START:
-                        new_board.white_queen_side_castle = False
-                    elif _move[0] == BOARD_START and _move[1] == BOARD_START:
-                        new_board.black_queen_side_castle = False
-                    elif _move[0] == BOARD_START and _move[1] == BOARD_END-1:
-                        new_board.black_king_side_castle = False
+        # if the rook is captured, take away castling privileges
+        if _move[0] == BOARD_END-1 and _move[1] == BOARD_END-1:
+            new_board.white_king_side_castle = False
+        elif _move[0] == BOARD_END-1 and _move[1] == BOARD_START:
+            new_board.white_queen_side_castle = False
+        elif _move[0] == BOARD_START and _move[1] == BOARD_START:
+            new_board.black_queen_side_castle = False
+        elif _move[0] == BOARD_START and _move[1] == BOARD_END-1:
+            new_board.black_king_side_castle = False
 
-                    # checks if the pawn has moved two spaces, if it has it can be captured en passant, record the space behind the pawn
-                    if is_pawn(piece) and abs(i-_move[0]) == 2:
-                        if is_white(piece):
-                            new_board.pawn_double_move = (_move[0]+1, _move[1])
-                        else:
-                            new_board.pawn_double_move = (_move[0]-1, _move[1])
-                    else:
-                        # the most recent move was not a double pawn move, unset any possibly existing pawn double move
-                        new_board.pawn_double_move = None
+        # checks if the pawn has moved two spaces, if it has it can be captured en passant, record the space behind the pawn
+        if is_pawn(piece) and abs(square_cords[0] -_move[0]) == 2:
+            if is_white(piece):
+                new_board.pawn_double_move = (_move[0]+1, _move[1])
+            else:
+                new_board.pawn_double_move = (_move[0]-1, _move[1])
+        else:
+            # the most recent move was not a double pawn move, unset any possibly existing pawn double move
+            new_board.pawn_double_move = None
 
-                    # deal with pawn promotions
-                    if _move[0] == BOARD_START and piece == (WHITE | PAWN):
-                        for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
-                            _new_board = copy.deepcopy(new_board)
-                            _new_board.pawn_double_move = None
-                            _new_board.state[_move[0]][_move[1]] = (
-                                WHITE | promotion_piece)
-                            _new_board.white_total_piece_value += (
-                                PIECE_VALUES[promotion_piece] - PIECE_VALUES[PAWN])
-                            new_moves.append(_new_board)
-                    elif piece == (BLACK | PAWN) and _move[0] == BOARD_END-1:
-                        for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
-                            _new_board = copy.deepcopy(new_board)
-                            _new_board.state[_move[0]][_move[1]] = (
-                                BLACK | promotion_piece)
-                            _new_board.black_total_piece_value += (
-                                PIECE_VALUES[promotion_piece] - PIECE_VALUES[PAWN])
-                            new_moves.append(_new_board)
-                    else:
-                        new_moves.append(new_board)
+        # deal with pawn promotions
+        if _move[0] == BOARD_START and piece == (WHITE | PAWN):
+            promote_pawn(new_board, WHITE, (_move[0], _move[1]), new_moves)
+        elif piece == (BLACK | PAWN) and _move[0] == BOARD_END-1:
+            promote_pawn(new_board, BLACK, (_move[0], _move[1]), new_moves)
+        else:
+            new_moves.append(new_board)
 
-                # take care of en passant captures
-                if is_pawn(piece):
-                    en_passant = pawn_moves_en_passant(i, j, board)
-                    if en_passant is not None:
-                        _move = copy.deepcopy(en_passant)
-                        new_board = copy.deepcopy(board)
-                        new_board.swap_color()
-                        new_board.pawn_double_move = None
+    # take care of en passant captures
+    if is_pawn(piece):
+        en_passant = pawn_moves_en_passant(square_cords[0], square_cords[1], board)
+        if en_passant is not None:
+            _move = copy.deepcopy(en_passant)
+            new_board = copy.deepcopy(board)
+            new_board.swap_color()
+            new_board.pawn_double_move = None
 
-                        new_board.state[_move[0]][_move[1]] = piece
-                        new_board.state[i][j] = EMPTY
-                        if is_white(piece):
-                            new_board.state[_move[0]+1][_move[1]] = EMPTY
-                            new_board.black_total_piece_value -= PIECE_VALUES[PAWN]
-                        else:
-                            new_board.state[_move[0]-1][_move[1]] = EMPTY
-                            new_board.white_total_piece_value -= PIECE_VALUES[PAWN]
+            new_board.state[_move[0]][_move[1]] = piece
+            new_board.state[square_cords[0]][square_cords[1]] = EMPTY
+            if is_white(piece):
+                new_board.state[_move[0]+1][_move[1]] = EMPTY
+                new_board.black_total_piece_value -= PIECE_VALUES[PAWN]
+            else:
+                new_board.state[_move[0]-1][_move[1]] = EMPTY
+                new_board.white_total_piece_value -= PIECE_VALUES[PAWN]
 
-                        # if you make your move, and you do not end up in check, this this move is valid
-                        if not is_check(new_board, board.to_move):
-                            new_moves.append(new_board)
+            # if you make your move, and you do not end up in check, this this move is valid
+            if not is_check(new_board, board.to_move):
+                new_moves.append(new_board)
 
+
+def generate_castling_moves(board: Chess, new_moves: List[Chess]):
     # take care of castling
     if board.to_move == WHITE and can_castle(board, CastlingType.WHITE_KING_SIDE):
         new_board = copy.deepcopy(board)
@@ -833,8 +819,6 @@ def generate_move_for_piece(board: Chess, square_cords: Point, new_moves: List[C
         new_board.state[BOARD_START][BOARD_START + 3] = BLACK | ROOK
         new_moves.append(new_board)
 
-    return new_moves
-
 
 def generate_moves_test(board: Chess, cur_depth: int, depth: int, move_counts: List[int]):
     if cur_depth == depth:
@@ -843,6 +827,26 @@ def generate_moves_test(board: Chess, cur_depth: int, depth: int, move_counts: L
     move_counts[cur_depth] += len(moves)
     for mov in moves:
         generate_moves_test(mov, cur_depth+1, depth, move_counts)
+
+
+def promote_pawn(board: Chess, color: int, square_cords: Point, moves: List[Chess]):
+    pawn_value = PIECE_VALUES[PAWN]
+    for promotion_piece in [QUEEN, KNIGHT, BISHOP, ROOK]:
+        new_board = copy.deepcopy(board)
+        new_board.pawn_double_move = None
+        if color == WHITE:
+            new_board.state[square_cords[0]][square_cords[1]] = (
+                WHITE | promotion_piece)
+        else:
+            new_board.state[square_cords[0]][square_cords[1]] = (
+                BLACK | promotion_piece) 
+        value = PIECE_VALUES[promotion_piece] - pawn_value
+
+        if color == BLACK:
+            new_board.black_total_piece_value += value
+        else:
+            new_board.white_total_piece_value += value
+        moves.append(new_board)
 
 
 PIECE_VALUES = [0, 100, 320, 330, 500, 900, 20000]
